@@ -38,13 +38,24 @@ void runProgram(GLFWwindow* window)
 		1, 2, 3    // second triangle
 	};
 
+	static const GLfloat vertices2[] = {
+		-0.6, -0.6, 0,
+		0.6, -0.6, 0,
+		0, 0.6, 0
+	};
+
+	static const GLfloat vertices3[] = {
+		0.6, -0.8, -1.2,
+		0, 0.4, 0,
+		-0.8, -0.2, 1.2
+	};
 
 	/*
 	Next, ensure that your Shader is loaded and bound before you construct your VAO(s). Load and compile each of the shaders we would like to use
 	You can now use the glGetAttribLocation() function to obtain the indexes which
 	OpenGL has assigned to your inputs:
 	*/
-	Shader shader;	shader.attach("shaders/simple.vert");	shader.attach("shaders/simple.frag");
+	// b)	Shader shader;	shader.attach("/shaders/simple.vert");	shader.attach("/shaders/simple.frag");
 	GLuint mProgram = shader.get();
 	shader.link();
 
@@ -55,7 +66,7 @@ void runProgram(GLFWwindow* window)
 	int attributeLocation = glGetAttribLocation(mProgram, "position");
 
 	/* Uniform are constants across all shaders, and cannot be changed by shader, must be changed by GPU*/
-	glUniform4f(attributeLocation, 1.0f, 2.0f, 3.0f, 4.0f);
+	//glUniform4f(attributeLocation, 1.0f, 2.0f, 3.0f, 4.0f);
 
 
 	// Create and bind VAO, Vertex Array Object. VAO are objects holding data on how to draw a specific object. A VAO contains 0-16 VBO's
@@ -63,12 +74,11 @@ void runProgram(GLFWwindow* window)
 	// EBO,ELement Buffer Object. Defines how the coordinates of the vertices in the VBO are to be combined into primitives. It is another VBO that the VAO holds
 	GLuint VAO = 0, VBO = 0, EBO = 0; // Create ID's to reference the given VAO and VBO
 	glGenVertexArrays(1, &VAO); // generate 1 VAO from array of VAO id's. We use only 1 here
-	glGenBuffers(1, &VBO);
-	glGenBuffers(1, &EBO);
 
 
 	glBindVertexArray(VAO); // Sets this VAO as currently active VAO, only 1 can be active at a time. Drawing mutiple types of object can be done by switching out active bound VAO. Usually we bind, draw with, and unbind VAO's
 
+	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO); // Any buffer calls we make (on the GL_ARRAY_BUFFER target) will be used to configure the currently bound buffer and.
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); // Call to glBufferData with given data (vertices) now puts the data into bound VBO
 
@@ -86,6 +96,7 @@ void runProgram(GLFWwindow* window)
 
 
 
+	glGenBuffers(1, &EBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO); // EBO has special type of buffer GL_ELEMENT_ARRAY_BUFFER
 	glBufferData(GL_ARRAY_BUFFER, sizeof(indices) / sizeof(indices[0]), indices, GL_STATIC_DRAW);
 
@@ -137,6 +148,12 @@ void handleKeyboardInput(GLFWwindow* window)
     }
 }
 
+
+// a)
+int setupVAO(float* coordinates, int* indices, int numCoordinates = -1, int numIndices = -1) {
+	
+	return 0;
+}
 
 
 
