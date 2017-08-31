@@ -57,7 +57,6 @@ GLFWwindow* initialise()
     glfwMakeContextCurrent(window);
     gladLoadGL();
 
-
     // Print various OpenGL information to stdout
     printf("%s: %s\n", glGetString(GL_VENDOR), glGetString(GL_RENDERER));
     printf("GLFW\t %s\n", glfwGetVersionString());

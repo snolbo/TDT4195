@@ -9,9 +9,6 @@
 #include <string>
 
 
-// EX1 EDIT can i include this?
-#include <array>
-
 // Main OpenGL program
 void runProgram(GLFWwindow* window);
 
@@ -20,9 +17,8 @@ void runProgram(GLFWwindow* window);
 void handleKeyboardInput(GLFWwindow* window);
 
 
-// EX1 EDIT
-int createVAO(float* VAC, unsigned int* indexArray, int VACLength = -1, int indexLength = -1);
 
+int setupVOA(float* coordinates, int numCoordinates, int* indices, int numIndices);
 
 
 // Checks for whether an OpenGL error occurred. If one did,
