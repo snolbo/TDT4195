@@ -16,9 +16,8 @@ void runProgram(GLFWwindow* window);
 // Function for handling keypresses
 void handleKeyboardInput(GLFWwindow* window);
 
-
-
 int setupVOA(float* coordinates, int numCoordinates, int* indices, int numIndices);
+
 
 
 // Checks for whether an OpenGL error occurred. If one did,

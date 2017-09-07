@@ -1,11 +1,7 @@
-﻿// Local headers
-#include "program.hpp"
+﻿#include "program.hpp"
 #include "gloom/gloom.hpp"
-
 #include "gloom/shader.hpp"
 
-#include <glm/gtc/quaternion.hpp>
-#include <glm/gtx/quaternion.hpp>
 
 using namespace Gloom;
 
@@ -60,16 +56,13 @@ void runProgram(GLFWwindow* window)
 	};
 
 	static GLfloat vertices2[] = {
-		0.6f, -0.8f, -0.2f,
+		0.6f, -0.8f, -1.2f,
 		0.0f, 0.4f, 0.0f,
 		-0.8f, -0.2f, 1.2f
 	};
 	static GLint indices2[]{
 		0, 1, 2
 	};
-
-
-
 
 	/*
 	Next, ensure that your Shader is loaded and bound before you construct your VAO(s). Load and compile each of the shaders we would like to use
@@ -87,11 +80,8 @@ void runProgram(GLFWwindow* window)
 	glEnableVertexAttribArray() while setting up the VAO.
 	*/
 
-
 	int VAO = setupVOA(vertices2, 9, indices2, 3);
 
-	/* Uniform are constants across all shaders, and cannot be changed by shader, must be changed by GPU*/
-	//glUniform4f(, 1.0f, 2.0f, 3.0f, 4.0f);
 
 	// Rendering Loop
 	while (!glfwWindowShouldClose(window))
@@ -111,10 +101,8 @@ void runProgram(GLFWwindow* window)
 			0					// Indices specifies the start index in your index buffer to start drawing from
 		);
 		shader.deactivate();
-
 		glEnableVertexAttribArray(0); // Enable this vertex attribute pointer for the VAO
-
-
+		
 		// Handle other events
 		glfwPollEvents();
 		handleKeyboardInput(window);
@@ -122,16 +110,8 @@ void runProgram(GLFWwindow* window)
 		// Flip buffers
 		glfwSwapBuffers(window);
 	}
-
-
-
 	//  de-allocate all resources once they've outlived their purpose:
 	shader.destroy();
-	//glDeleteVertexArrays(1, &VAO);
-	//glDeleteBuffers(1, &VBO);
-	//glDeleteBuffers(1, &EBO);
-
-
 }
 
 
@@ -166,7 +146,7 @@ int setupVOA(float* coordinates, int numCoordinates, int* indices, int numIndice
 		0, // Vertex attribute pointer index in VAO
 		3, // Number of components per vertex attribute {1,2,3,4}
 		GL_FLOAT, // Type, datatype for each component in the array
-		GL_FALSE, // Normalized, specified if data in buffer should be normalized (-1 to 1 for signed and 0.1 for unsigned) 
+		GL_FALSE, // Normalized, specified if data in buffer should be normalized (-1 to 1 for signed and 0.1 for unsigned)
 		0, // Stride, specifies byte offset between consecutive vertex attributes in array. Array contain 3 vertex + 2 texture: x,y,z,u,w,x,y,z... then the stride between x is 3*4 byte + 2*4 byte = 20 byte. 0 Lets OpenGL deduce
 		0 // # Offset in bytes to forst component of first vertex attribute in array
 	);
@@ -182,8 +162,3 @@ int setupVOA(float* coordinates, int numCoordinates, int* indices, int numIndice
 
 	return 0;
 }
-
-
-
-
-
