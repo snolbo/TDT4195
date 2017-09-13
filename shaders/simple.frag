@@ -1,8 +1,13 @@
 #version 430 core
 
-out vec4 color;
+
+in layout(location = 0) vec4 colorV;
+
+out vec4 outputFrag;
+
+
 
 void main()
 {
-    color = vec4(1.0f, 1.0f, 0.0f, 1.0f);	
+    outputFrag = colorV;
 }
