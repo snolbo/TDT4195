@@ -13,8 +13,10 @@ using namespace Gloom;
 
 
 glm::vec3 camPosition = glm::vec3(0.0f, 0.0f, 4.0f);
-glm::vec3 camFront = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 camDirection = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 camUp = glm::vec3(0.0f, 1.0f, 0.0f);
+glm::vec3 camRight = glm::vec3(1.0f, 0.0f, 0.0f);
+glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
 
 float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
@@ -65,26 +67,26 @@ static  GLint indices[] = {  // note that we start from 0!
 static int indicesLength = 15;
 
 
-static GLfloat colors[] = { // ???????? how to reuse colors like you can reuse vertices by deciding the drawingt order of triangles???
+static GLfloat colors[] = {
 	1.0f, 1.0f, 0.0f, 1.0f,
 	1.0f, 0.0f, 0.0f, 1.0f,
+	0.4f, 0.1f, 0.1f, 1.0f,
+
+	0.1f, 0.1f, 0.3f, 1.0f,
+	0.1f, 0.0f, 0.4f, 1.0f,
+	0.6f, 1.0f, 1.0f, 1.0f,
+
+	1.0f, 0.0f, 0.0f, 1.0f,
+	1.0f, 0.0f, 0.8f, 1.0f,
 	0.0f, 1.0f, 1.0f, 1.0f,
 
-	1.0f, 1.0f, 0.0f, 1.0f,
-	1.0f, 0.0f, 0.0f, 1.0f,
+	0.0f, 0.6f, 0.0f, 1.0f,
+	1.0f, 0.3f, 0.0f, 1.0f,
 	0.0f, 1.0f, 1.0f, 1.0f,
 
-	1.0f, 1.0f, 0.0f, 1.0f,
-	1.0f, 0.0f, 0.0f, 1.0f,
-	0.0f, 1.0f, 1.0f, 1.0f,
-
-	1.0f, 1.0f, 0.0f, 1.0f,
-	1.0f, 0.0f, 0.0f, 1.0f,
-	0.0f, 1.0f, 1.0f, 1.0f,
-
-	1.0f, 1.0f, 0.0f, 1.0f,
-	1.0f, 0.0f, 0.0f, 1.0f,
-	0.0f, 1.0f, 1.0f, 1.0f
+	0.2f, 1.0f, 0.0f, 1.0f,
+	1.0f, 0.0f, 0.3f, 1.0f,
+	0.7f, 1.0f, 1.0f, 1.0f
 
 };
 static int colorsLength = 60;
@@ -189,6 +191,10 @@ void runProgram(GLFWwindow* window)
 	// Configure miscellaneous OpenGL settings
 	glEnable(GL_CULL_FACE);
 
+	// Enabling OpenGL transparacy given by the alpha values on the colors
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	// Set default colour after clearing the colour buffer
 	glClearColor(0.3f, 0.5f, 0.8f, 1.0f);
 
@@ -201,15 +207,15 @@ void runProgram(GLFWwindow* window)
 	shader.link();
 
 	// setting up VAO and VBO's with given data. Returns ID to created VAO
-	int VAO = setupVOA(vertices3, vertices3Length, colors3, colors3Length, indices3, indices3Length);
+	int VAO = setupVOA(vertices, verticesLength, colors, colorsLength, indices, indicesLength);
 
-	// Test transformation matrices
+	// Test transformation matrices Task 4A
 	glm::mat4 transformationMatrix2 = glm::mat4(1.0);
 	glm::mat4 transformationMatrix3 = glm::translate(glm::vec3(0.3, 0.3, 0));
 	glm::mat4 transformationMatrix4 = glm::rotate(30.0f, glm::vec3(0, 0, 1));
 	glm::mat4 transformationMatrix5 = transformationMatrix3 * transformationMatrix4;
 
-	// Test code from rotating about center
+	// Test code for rotating about center
 	/*
 	glm::vec3 camTarget = glm::vec3(0.0f, 0.0f, 0.0f);
 	glm::vec3 camUp = glm::cross(camDirection, camRight);
@@ -222,7 +228,7 @@ void runProgram(GLFWwindow* window)
 	*/
 
 	// Projection matrix
-	glm::mat4 projectionMatrix = glm::perspective(glm::radians(45.0f), (float)16 / (float)9, 0.1f, 100.0f);  // 4 B)
+	glm::mat4 projectionMatrix = glm::perspective(glm::radians(45.0f), (float)16 / (float)9, 1.0f, 100.0f);  // TASK 4 b)
 
 	// Rendering Loop
 	while (!glfwWindowShouldClose(window))
@@ -242,18 +248,26 @@ void runProgram(GLFWwindow* window)
 
 		// Create transformatin matrices
 		glm::mat4 I = glm::mat4(1.0f);
+
 		glm::mat4 translationMatrix = glm::translate(-camPosition); // must translate world in negative direction to create illusion of moving in positive
-		glm::mat4 rotationPitch = glm::rotate(glm::radians(pitch), glm::cross(camFront, camUp)); // cross product creates right vector -> pos x
-		glm::mat4 rotationYaw = glm::rotate(glm::radians(yaw), camUp); // rotates around y axis, which is camUp
+		glm::mat4 viewBasisMatrix = transpose(glm::mat4(glm::vec4(camRight, 0.0f), glm::vec4(camUp, 0.0f), glm::vec4(-camDirection, 0.0f), glm::vec4(0, 0, 0, 1)));
+		glm::mat4 viewTransform = viewBasisMatrix * translationMatrix;
+
+		glm::mat4 rotYaw = glm::rotate(glm::radians(yaw), glm::vec3(0.0f, 1.0f, 0.0f));
+		glm::mat4 rotPitch = glm::rotate(glm::radians(pitch), camRight);
+
 
 		// Create final transformation matrix by multiplying all the transformation in the desired order
-		glm::mat4 transformationMatrix = projectionMatrix * rotationPitch* rotationYaw * translationMatrix * I;
+		//glm::mat4 transformationMatrix = projectionMatrix * rotationPitch* rotationYaw * translationMatrix * I;
+		glm::mat4 transformationMatrixWCS2ECSVersion = projectionMatrix * viewTransform;
+
+		glm::mat4 transformationMatrixRotationVersion = projectionMatrix * rotYaw * rotPitch * translationMatrix;
 
 		// This creates the same translateion + rotation matrix as above. This is how you are supposed to do int
 		// glm::mat4 view = glm::lookAt(camPosition, camPosition + camFront, camUp); // param: position, target/inverse direction, up
 		
 		// Pass the transformation matrix to the shader
-		glUniformMatrix4fv(0, 1, GL_FALSE, glm::value_ptr(transformationMatrix));
+		glUniformMatrix4fv(0, 1, GL_FALSE, glm::value_ptr(transformationMatrixWCS2ECSVersion));
 
 		// Draw data from VBO's in VAO
 		glDrawElements( //glDrawElements will cause a draw call to be issued, and use the Vertex Attributes specified in the VAO as input to the rendering pipeline.
@@ -293,27 +307,27 @@ void handleKeyboardInput(GLFWwindow* window)
 	lastFrame = currentFrame;
 	float camSpeed = 2.5f * deltaTime;
 
-	// Translation 
+	// Translation !!! Note that these controls will move left right forward backwards relative to the camera's orientation, and not the world, therefore it is kind of a floating object in space and not a standing one
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		camPosition += camSpeed * camFront;
+		camPosition += camSpeed * camDirection;
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		camPosition -= camSpeed * camFront;
+		camPosition -= camSpeed * camDirection;
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		camPosition -= glm::normalize(glm::cross(camFront, camUp)) * camSpeed;
+		camPosition -= glm::normalize(glm::cross(camDirection, camUp)) * camSpeed;
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		camPosition += glm::normalize(glm::cross(camFront, camUp)) * camSpeed;
+		camPosition += glm::normalize(glm::cross(camDirection, camUp)) * camSpeed;
 	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-		camPosition += camUp * camSpeed;
+		camPosition += up * camSpeed;
 	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-		camPosition -= camUp *camSpeed;
+		camPosition -= up *camSpeed;
 
 	// Rotation
 	float yoffset = 0;
 	float xoffset = 0;
 	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-		yoffset -= camSpeed;
-	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
 		yoffset += camSpeed;
+	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+		yoffset -= camSpeed;
 	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
 		xoffset -= camSpeed;
 	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
@@ -346,7 +360,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	}
 
 	float xoffset = xpos - lastX;
-	float yoffset = ypos- lastY;
+	float yoffset = lastY - ypos;
 	lastX = xpos;
 	lastY = ypos;
 
@@ -377,7 +391,10 @@ void updateAngles(float xoffset, float yoffset, float sensitivity) {
 	front.x = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
 	front.y = sin(glm::radians(pitch));
 	front.z = -cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-	camFront = glm::normalize(front);
+	camDirection = glm::normalize(front);
+
+	camRight = glm::normalize(glm::cross(camDirection, up));
+	camUp = glm::normalize(glm::cross(camRight, camDirection));
 
 	// Debug printing
 	/*
@@ -422,9 +439,7 @@ int setupVOA(float* coordinates, int numCoordinates, float* colorValues, int num
 	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(1); // ?????? is this correct? Can it be done any other way besides hardcoding?
 
-	// Enabling OpenGL transparacy given by the alpha values on the colors
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 
 
 	glGenBuffers(1, &EBO);
