@@ -145,7 +145,7 @@ static GLint indices3[]{
 	3, 4, 5,
 	6, 7, 8
 };
-static GLint indices3BackToFront[]{
+static GLint indices3Front2Back[]{
 	6, 7, 8,
 	3, 4, 5,
 	0, 1, 2
@@ -207,7 +207,7 @@ void runProgram(GLFWwindow* window)
 	shader.link();
 
 	// setting up VAO and VBO's with given data. Returns ID to created VAO
-	int VAO = setupVOA(vertices, verticesLength, colors, colorsLength, indices, indicesLength);
+	int VAO = setupVOA(vertices3, vertices3Length, colors3Exchanged, colors3Length, indices3, indices3Length);
 
 	// Test transformation matrices Task 4A
 	glm::mat4 transformationMatrix2 = glm::mat4(1.0);
@@ -267,7 +267,7 @@ void runProgram(GLFWwindow* window)
 		// glm::mat4 view = glm::lookAt(camPosition, camPosition + camFront, camUp); // param: position, target/inverse direction, up
 		
 		// Pass the transformation matrix to the shader
-		glUniformMatrix4fv(0, 1, GL_FALSE, glm::value_ptr(transformationMatrixWCS2ECSVersion));
+		glUniformMatrix4fv(0, 1, GL_FALSE, glm::value_ptr(transformationMatrixRotationVersion));
 
 		// Draw data from VBO's in VAO
 		glDrawElements( //glDrawElements will cause a draw call to be issued, and use the Vertex Attributes specified in the VAO as input to the rendering pipeline.
