@@ -1,18 +1,20 @@
 ﻿#include "program.hpp"
 #include "gloom/gloom.hpp"
 #include "gloom/shader.hpp"
-#include <math.h>
+#include "gloom/sceneGraph.hpp"
+#include <glm/ext.hpp>
 
-#include <glm/mat4x4.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/gtx/transform.hpp>
+#include <math.h>
+#include <vector>
+
+
 
 
 using namespace Gloom;
 
 
 
-glm::vec3 camPosition = glm::vec3(0.0f, 0.0f, 4.0f);
+glm::vec3 camPosition = glm::vec3(0.0f, 1.0f, 8.0f);
 glm::vec3 camDirection = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 camUp = glm::vec3(0.0f, 1.0f, 0.0f);
 glm::vec3 camRight = glm::vec3(1.0f, 0.0f, 0.0f);
@@ -182,6 +184,164 @@ static GLfloat colors3Exchanged[]{
 static int colors3Length = 36;
 
 
+
+
+static GLfloat headVertices[] = {
+	// head front
+	-0.4f, 2.4f, 0.4f,
+	 0.4f, 2.4f, 0.4f,
+	 0.4f, 3.2f, 0.4f,
+	-0.4f, 3.2f, 0.4f,
+
+	// head back
+	-0.4f, 2.4f, -0.4f,
+	 0.4f, 2.4f, -0.4f,
+	 0.4f, 3.2f, -0.4f,
+	-0.4f, 3.2f, -0.4f
+};
+
+static GLfloat torsoVertices[] = {
+	// torso front
+	-0.4f, 1.2f, 0.2f,
+	0.4f, 1.2f, 0.2f,
+	0.4f, 2.4f, 0.2f,
+	-0.4f, 2.4f, 0.2f,
+
+	// torso back
+	-0.4f, 1.2f, -0.2f,
+	0.4f, 1.2f, -0.2f,
+	0.4f, 2.4f, -0.2f,
+	-0.4f, 2.4f, -0.2f
+};
+
+static GLfloat leftArmVertices[] = {
+	// arm front
+	-0.8f, 1.2f, 0.2f,
+	-0.4f, 1.2f, 0.2f,
+	-0.4f, 2.4f, 0.2f,
+	-0.8f, 2.4f, 0.2f,
+
+	// arm back
+	-0.8f, 1.2f, -0.2f,
+	-0.4f, 1.2f, -0.2f,
+	-0.4f, 2.4f, -0.2f,
+	-0.8f, 2.4f, -0.2f
+};
+
+static GLfloat rightArmVertices[] = {
+	// arm front
+	0.4f, 1.2f, 0.2f,
+	0.8f, 1.2f, 0.2f,
+	0.8f, 2.4f, 0.2f,
+	0.4f, 2.4f, 0.2f,
+
+	// arm back
+	0.4f, 1.2f, -0.2f,
+	0.8f, 1.2f, -0.2f,
+	0.8f, 2.4f, -0.2f,
+	0.4f, 2.4f, -0.2f,
+};
+
+static GLfloat leftLegVertices[] = {
+	// leg front
+	-0.4f, 0.0f, 0.2f,
+	 0.0f, 0.0f, 0.2f,
+	 0.0f, 1.2f, 0.2f,
+	-0.4f, 1.2f, 0.2f, 	
+
+	// leg back
+	-0.4f, 0.0f, -0.2f,
+	 0.0f, 0.0f, -0.2f,
+	 0.0f, 1.2f, -0.2f,
+	-0.4f, 1.2f, -0.2f,
+
+};
+static GLfloat rightLegVertices[] = {
+	// leg front
+	0.0f, 0.0f, 0.2f,
+	0.4f, 0.0f, 0.2f,
+	0.4f, 1.2f, 0.2f,
+	0.0f, 1.2f, 0.2f,
+
+	// leg back
+	0.0f, 0.0f, -0.2f,
+	0.4f, 0.0f, -0.2f,
+	0.4f, 1.2f, -0.2f,
+	0.0f, 1.2f, -0.2f
+};
+int bodyPartVerticesLength = 24;
+
+static GLint indicesBodyPart[] = {
+	// front and back
+	0, 1, 2,
+	0, 2, 3,
+
+	4, 7, 6,
+	4, 6, 5,
+
+	// left side
+	4, 0, 3,
+	4, 3, 7,
+
+	// right side
+	1, 5, 6,
+	1, 6, 2,
+
+	//top 
+	3, 2, 6,
+	3, 6, 7,
+
+	// bot
+	4, 5, 1,
+	4, 1, 0
+
+
+};
+int indicesBodyPartLength = 36;
+
+static GLfloat bodyPartColors[]{
+	// front
+	0.0f, 1.0f, 0.0f, 1.0f,
+	0.0f, 1.0f, 0.0f, 1.0f,
+	0.0f, 1.0f, 0.0f, 1.0f,
+	0.0f, 1.0f, 0.0f, 1.0f,
+	
+	//back
+	1.0f, 0.0f, 0.0f, 1.0f,
+	1.0f, 0.0f, 0.0f, 1.0f,
+	1.0f, 0.0f, 0.0f, 1.0f,
+	1.0f, 0.0f, 0.0f, 1.0f
+
+};
+int bodyPartColorLength = 32;
+
+static GLfloat terrainVertices[] = {
+	-5.0f, 0.0f, 5.0f,
+	5.0f, 0.0f, 5.0f,
+	5.0f, 0.0f, -5.0f,
+	-5.0f, 0.0f, -5.0f
+};
+int terrainVerticesLength = 12;
+
+static GLint terrainIndices[] = {
+	0, 1, 2,
+	0, 2, 3
+};
+int terrainIndicesLength = 6;
+
+static GLfloat terrainColors[]{
+	0.0f, 0.0f, 1.0f, 1.0f,
+	0.0f, 0.0f, 1.0f, 1.0f,
+	0.0f, 0.0f, 1.0f, 1.0f,
+	0.0f, 0.0f, 1.0f, 1.0f
+};
+int terrainColorLength = 16;
+
+
+
+
+GLuint VAO[7], VBOIndices[7], VBOColors[7], EBO[7];
+int leftLegVAO, rightLegVAO, torsoVAO, leftArmVAO, rightArmVAO, headVAO, terrainVAO;
 void runProgram(GLFWwindow* window)
 {
 	// Enable depth (Z) buffer (accept "closest" fragment)
@@ -196,36 +356,40 @@ void runProgram(GLFWwindow* window)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// Set default colour after clearing the colour buffer
-	glClearColor(0.3f, 0.5f, 0.8f, 1.0f);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 	// Hides cursor when window is active
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	// Callback for when mouse position changes
-	glfwSetCursorPosCallback(window, mouse_callback); 
-	//Creating and linking of shaders are simplified with the handout code for the shader
-	Shader shader;	shader.attach("../gloom/shaders/simple.vert");	shader.attach("../gloom/shaders/simple.frag");
+	glfwSetCursorPosCallback(window, mouse_callback);
+
+	//Creating and linking of shaders are simplified with the handout code for the shader
+	Shader shader;
+	shader.attach("../gloom/shaders/simple.vert");
+	shader.attach("../gloom/shaders/simple.frag");
 	shader.link();
 
+	
+	glGenVertexArrays(7, VAO); // generate 1 VAO from array of VAO id's. We use only 1 here
+	glGenBuffers(7, VBOIndices);
+	glGenBuffers(7, VBOColors);
+	glGenBuffers(7, EBO);
+
+
 	// setting up VAO and VBO's with given data. Returns ID to created VAO
-	int VAO = setupVOA(vertices3, vertices3Length, colors3Exchanged, colors3Length, indices3, indices3Length);
+	leftLegVAO = setupVOA(&VAO[0], &VBOIndices[0], &VBOColors[0], &EBO[0],  leftLegVertices, bodyPartVerticesLength, bodyPartColors, bodyPartColorLength, indicesBodyPart, indicesBodyPartLength);
+	rightLegVAO = setupVOA(&VAO[1], &VBOIndices[1], &VBOColors[1], &EBO[1], rightLegVertices, bodyPartVerticesLength, bodyPartColors, bodyPartColorLength, indicesBodyPart, indicesBodyPartLength);
+	torsoVAO = setupVOA(&VAO[2], &VBOIndices[2], &VBOColors[2], &EBO[2], torsoVertices, bodyPartVerticesLength, bodyPartColors, bodyPartColorLength, indicesBodyPart, indicesBodyPartLength);
+	leftArmVAO = setupVOA(&VAO[3], &VBOIndices[3], &VBOColors[3], &EBO[3], leftArmVertices, bodyPartVerticesLength, bodyPartColors, bodyPartColorLength, indicesBodyPart, indicesBodyPartLength);
+	rightArmVAO = setupVOA(&VAO[4], &VBOIndices[4], &VBOColors[4], &EBO[4], rightArmVertices, bodyPartVerticesLength, bodyPartColors, bodyPartColorLength, indicesBodyPart, indicesBodyPartLength);
+	headVAO = setupVOA(&VAO[5], &VBOIndices[5], &VBOColors[5], &EBO[5], headVertices, bodyPartVerticesLength, bodyPartColors, bodyPartColorLength, indicesBodyPart, indicesBodyPartLength);
+	terrainVAO = setupVOA(&VAO[6], &VBOIndices[6], &VBOColors[6], &EBO[6], terrainVertices, terrainVerticesLength, terrainColors, terrainColorLength, terrainIndices, terrainIndicesLength);
 
-	// Test transformation matrices Task 4A
-	glm::mat4 transformationMatrix2 = glm::mat4(1.0);
-	glm::mat4 transformationMatrix3 = glm::translate(glm::vec3(0.3, 0.3, 0));
-	glm::mat4 transformationMatrix4 = glm::rotate(30.0f, glm::vec3(0, 0, 1));
-	glm::mat4 transformationMatrix5 = transformationMatrix3 * transformationMatrix4;
+	// get root node for scene graph
+	SceneNode* root = createSceneNode();
 
-	// Test code for rotating about center
-	/*
-	glm::vec3 camTarget = glm::vec3(0.0f, 0.0f, 0.0f);
-	glm::vec3 camUp = glm::cross(camDirection, camRight);
-	float radius = 0.6f;  // why can I not view objects from greater distances????????????????????
-	float camX;
-	float camZ;
-	camX = sin(glfwGetTime()) * radius;
-	camZ = cos(glfwGetTime()) * radius;
-	glm::mat4 view = glm::lookAt(glm::vec3(camX, 0.0, camZ), camTarget, camUp);
-	*/
+
+
 
 	// Projection matrix
 	glm::mat4 projectionMatrix = glm::perspective(glm::radians(45.0f), (float)16 / (float)9, 1.0f, 100.0f);  // TASK 4 b)
@@ -235,50 +399,64 @@ void runProgram(GLFWwindow* window)
 	{
 		// Clear colour and depth buffers
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		// Draw your scene here
-		glEnableVertexAttribArray(VAO); // Enable this vertex attribute pointer for the VAO
 
-		// SHADER TIME
 		shader.activate();
-
 		/*
 		PRO PERFORMANCE TIP: Its best to do matrix multiplication on cpu, not on gpu if the matrix used can be passed as a uniform.
 		Rather do 5 matrix multiplication on cpu with cpu clock speed than #cores * 5 multiplication on gpu with GPU core clock speed
 		*/
 
-		// Create transformatin matrices
-		glm::mat4 I = glm::mat4(1.0f);
-
+		// Create transformation matrix
 		glm::mat4 translationMatrix = glm::translate(-camPosition); // must translate world in negative direction to create illusion of moving in positive
-		glm::mat4 viewBasisMatrix = transpose(glm::mat4(glm::vec4(camRight, 0.0f), glm::vec4(camUp, 0.0f), glm::vec4(-camDirection, 0.0f), glm::vec4(0, 0, 0, 1)));
-		glm::mat4 viewTransform = viewBasisMatrix * translationMatrix;
-
-		glm::mat4 rotYaw = glm::rotate(glm::radians(yaw), glm::vec3(0.0f, 1.0f, 0.0f));
+		glm::mat4 rotYaw = glm::rotate(glm::radians(yaw), up);
 		glm::mat4 rotPitch = glm::rotate(glm::radians(pitch), camRight);
-
-
-		// Create final transformation matrix by multiplying all the transformation in the desired order
-		//glm::mat4 transformationMatrix = projectionMatrix * rotationPitch* rotationYaw * translationMatrix * I;
-		glm::mat4 transformationMatrixWCS2ECSVersion = projectionMatrix * viewTransform;
-
 		glm::mat4 transformationMatrixRotationVersion = projectionMatrix * rotYaw * rotPitch * translationMatrix;
+
 
 		// This creates the same translateion + rotation matrix as above. This is how you are supposed to do int
 		// glm::mat4 view = glm::lookAt(camPosition, camPosition + camFront, camUp); // param: position, target/inverse direction, up
-		
+		glm::mat4 viewBasisMatrix = transpose(glm::mat4(glm::vec4(camRight, 0.0f), glm::vec4(camUp, 0.0f), glm::vec4(-camDirection, 0.0f), glm::vec4(0, 0, 0, 1)));
+		glm::mat4 viewTransform = viewBasisMatrix * translationMatrix;
+		glm::mat4 transformationMatrixWCS2ECSVersion = projectionMatrix * viewTransform;
+
+
 		// Pass the transformation matrix to the shader
 		glUniformMatrix4fv(0, 1, GL_FALSE, glm::value_ptr(transformationMatrixRotationVersion));
 
-		// Draw data from VBO's in VAO
-		glDrawElements( //glDrawElements will cause a draw call to be issued, and use the Vertex Attributes specified in the VAO as input to the rendering pipeline.
-			GL_TRIANGLES,		// Mode parameter specifies the type of primitive you�d like to draw, TRIANGLE, LINE, POINTS
-			15,					// Count parameter specifies how many elements from the index buffer should be drawn.
-			GL_UNSIGNED_INT,	// Type specifies the data type of the values in your index buffer
-			0					// Indices specifies the start index in your index buffer to start drawing from
-		);
+		
+		glBindVertexArray(leftLegVAO);
+		glEnableVertexAttribArray(leftLegVAO); // Enable this vertex attribute pointer for the VAO
+		glDrawElements(GL_TRIANGLES, indicesBodyPartLength, GL_UNSIGNED_INT, 0);
+
+		glBindVertexArray(rightLegVAO);
+		glEnableVertexAttribArray(rightLegVAO); // Enable this vertex attribute pointer for the VAO
+		glDrawElements(GL_TRIANGLES, indicesBodyPartLength, GL_UNSIGNED_INT, 0);
+		
+		glBindVertexArray(torsoVAO);
+		glEnableVertexAttribArray(torsoVAO); // Enable this vertex attribute pointer for the VAO
+		glDrawElements(GL_TRIANGLES, indicesBodyPartLength, GL_UNSIGNED_INT, 0);
+
+		glBindVertexArray(leftArmVAO);
+		glEnableVertexAttribArray(leftArmVAO); // Enable this vertex attribute pointer for the VAO
+		glDrawElements(GL_TRIANGLES, indicesBodyPartLength, GL_UNSIGNED_INT, 0);
+
+		glBindVertexArray(rightArmVAO);
+		glEnableVertexAttribArray(rightArmVAO); // Enable this vertex attribute pointer for the VAO
+		glDrawElements(GL_TRIANGLES, indicesBodyPartLength, GL_UNSIGNED_INT, 0);
+
+		glBindVertexArray(headVAO);
+		glEnableVertexAttribArray(headVAO); // Enable this vertex attribute pointer for the VAO
+		glDrawElements(GL_TRIANGLES, indicesBodyPartLength, GL_UNSIGNED_INT, 0);
+
+	
+		glBindVertexArray(terrainVAO);
+		glEnableVertexAttribArray(terrainVAO); // Enable this vertex attribute pointer for the VAO
+		glDrawElements(GL_TRIANGLES, terrainIndicesLength, GL_UNSIGNED_INT, 0);
+
+
+
 		shader.deactivate();
 		// SHADER END
-		glEnableVertexAttribArray(0); // Unbind currently bound VAO
 		// Handle currently pressed keyboard keys to update position and angles
 		handleKeyboardInput(window);
 		// Handle other events
@@ -288,6 +466,42 @@ void runProgram(GLFWwindow* window)
 	}
 	//  de-allocate all resources once they've outlived their purpose:
 	shader.destroy();
+}
+
+SceneNode* constructRootSceneNode() {
+	SceneNode* root = createSceneNode();
+	SceneNode* leftArm = createSceneNode();
+	SceneNode* rightArm = createSceneNode();
+	SceneNode* leftLeg = createSceneNode();
+	SceneNode* rightLeg = createSceneNode();
+	SceneNode* head = createSceneNode();
+	SceneNode* torso = createSceneNode();
+
+	addChild(root, torso);
+	addChild(torso, head);
+
+	addChild(torso, leftArm);
+	addChild(torso, rightArm);
+
+	addChild(torso, leftLeg);
+	addChild(torso, rightLeg);
+
+	torso->vertexArrayObjectID = torsoVAO;
+	head->vertexArrayObjectID = headVAO;
+
+	leftLeg->vertexArrayObjectID = leftLegVAO;
+	rightLeg->vertexArrayObjectID = rightLegVAO;
+
+	leftArm->vertexArrayObjectID = leftArmVAO;
+	rightArm->vertexArrayObjectID = rightArmVAO;
+
+	// HOW ARE THESE INITIAL VALUES TO BE DEFINED? RELATIVE TO THE PARENT? RELATIVE TO ROOT? RELATIVE TO ORIGO????
+	torso->y = 2.4f; // set reference point of torso to connection between head and torso
+	return root;
+}
+
+void updateSceneGraph() {
+
 }
 
 /**
@@ -378,7 +592,7 @@ void updateAngles(float xoffset, float yoffset, float sensitivity) {
 	yoffset *= sensitivity;
 
 	yaw += xoffset;
-	pitch += yoffset;
+	pitch -= yoffset;
 
 	// Don't want to be able to spin vertically
 	if (pitch > 89.0f)
@@ -389,15 +603,14 @@ void updateAngles(float xoffset, float yoffset, float sensitivity) {
 	// Update the camera front vector with new angles and normalize it
 	glm::vec3 front;
 	front.x = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-	front.y = sin(glm::radians(pitch));
+	front.y = -sin(glm::radians(pitch));
 	front.z = -cos(glm::radians(yaw)) * cos(glm::radians(pitch));
 	camDirection = glm::normalize(front);
 
 	camRight = glm::normalize(glm::cross(camDirection, up));
 	camUp = glm::normalize(glm::cross(camRight, camDirection));
 
-	// Debug printing
-	/*
+	/*Debug printing
 	printf("Angles: %f, %f\n", yaw, pitch);
 	printf("CamFront: %f, %f, %f\n", camFront.x, camFront.y, camFront.z);
 	printf("CamPos: %f, %f, %f\n\n", camPosition.x, camPosition.y, camPosition.z);
@@ -407,44 +620,26 @@ void updateAngles(float xoffset, float yoffset, float sensitivity) {
 
 
 
-int setupVOA(float* coordinates, int numCoordinates, float* colorValues, int numColorValues, int* indices, int numIndices) {
+int setupVOA(GLuint* VAO, GLuint* VBOIndices, GLuint* VBOColors, GLuint* EBO, float* coordinates, int numCoordinates, float* colorValues, int numColorValues, int* indices, int numIndices) {
 
-	// Create and bind VAO, Vertex Array Object. VAO are objects holding data on how to draw a specific object. A VAO contains 0-16 VBO's
-	// VBO, Vertex Buffer Object, is some ombject holding data, it may be vertices, colors...
-	// EBO,ELement Buffer Object. Defines how the coordinates of the vertices in the VBO are to be combined into primitives. It is another VBO that the VAO holds
-	GLuint VAO = 0, VBOIndices = 0, VBOColors = 0, EBO = 0; // Create ID's to reference the given VAO and VBO
-	glGenVertexArrays(1, &VAO); // generate 1 VAO from array of VAO id's. We use only 1 here
-
-	glBindVertexArray(VAO); // Sets this VAO as currently active VAO, only 1 can be active at a time. Drawing mutiple types of object can be done by switching out active bound VAO. Usually we bind, draw with, and unbind VAO's
-
-	glGenBuffers(1, &VBOIndices);
-	glBindBuffer(GL_ARRAY_BUFFER, VBOIndices); // Any buffer calls we make (on the GL_ARRAY_BUFFER target) will be used to configure the currently bound buffer and.
+	glBindVertexArray(*VAO); // Sets this VAO as currently active VAO, only 1 can be active at a time. Drawing mutiple types of object can be done by switching out active bound VAO. Usually we bind, draw with, and unbind VAO's
+	
+	// Generate VBO for vertices
+	glBindBuffer(GL_ARRAY_BUFFER, *VBOIndices); // Any buffer calls we make (on the GL_ARRAY_BUFFER target) will be used to configure the currently bound buffer and.
 	glBufferData(GL_ARRAY_BUFFER, numCoordinates * sizeof(float), coordinates, GL_STATIC_DRAW); // Call to glBufferData with given data (vertices) now puts the data into bound VBO
-
-	glVertexAttribPointer(
-		0, // Vertex attribute pointer index in VAO
-		3, // Number of components per vertex attribute {1,2,3,4}
-		GL_FLOAT, // Type, datatype for each component in the array
-		GL_FALSE, // Normalized, specified if data in buffer should be normalized (-1 to 1 for signed and 0.1 for unsigned)
-		0, // Stride, specifies byte offset between consecutive vertex attributes in array. Array contain 3 vertex + 2 texture: x,y,z,u,w,x,y,z... then the stride between x is 3*4 byte + 2*4 byte = 20 byte. 0 Lets OpenGL deduce
-		0 // # Offset in bytes to forst component of first vertex attribute in array
-	);
-	// Enable Vertex Attribute Array to serve as input to rendering pipeline. glVertexAttribPointer and glEnableVertexAttribArray() ensures VA linked to shader inputs when issuing draw call
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(0); // Enable this vertex attribute pointer for the VAO
 
 	// Generate VBO for colors
-	glGenBuffers(1, &VBOColors);
-	glBindBuffer(GL_ARRAY_BUFFER, VBOColors);
+	glBindBuffer(GL_ARRAY_BUFFER, *VBOColors);
 	glBufferData(GL_ARRAY_BUFFER, numColorValues * sizeof(float), colorValues, GL_STATIC_DRAW);
 	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(1); // ?????? is this correct? Can it be done any other way besides hardcoding?
+	glEnableVertexAttribArray(1);
 
-
-
-
-	glGenBuffers(1, &EBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO); // EBO has special type of buffer GL_ELEMENT_ARRAY_BUFFER
+	// Set indices
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *EBO); // EBO has special type of buffer GL_ELEMENT_ARRAY_BUFFER
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, numIndices * sizeof(unsigned int), indices, GL_STATIC_DRAW);
 
-	return VAO;
+	glBindVertexArray(0);
+	return *VAO;
 }

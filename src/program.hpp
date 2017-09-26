@@ -7,6 +7,7 @@
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
 #include <string>
+#include "gloom/sceneGraph.hpp"
 
 
 // Main OpenGL program
@@ -16,11 +17,14 @@ void runProgram(GLFWwindow* window);
 // Function for handling keypresses
 void handleKeyboardInput(GLFWwindow* window);
 
-int setupVOA(float* coordinates, int numCoordinates, float* colorValues, int numColorValues, int* indices, int numIndices);
-
+int setupVOA(GLuint* VAO, GLuint* VBOIndices, GLuint* VBOColors, GLuint* EBO, float* coordinates, int numCoordinates, float* colorValues, int numColorValues, int* indices, int numIndices);
+SceneNode* constructRootSceneNode();
+void updateSceneGraph();
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void updateAngles(float xoffset, float yoffset, float sensitivity);
+
+
 
 // Checks for whether an OpenGL error occurred. If one did,
 // it prints out the error type and ID
