@@ -70,7 +70,7 @@ typedef struct SceneNode {
 	glm::mat4 currentTransformationMatrix;
 
 	// The ID of the VAO containing the "appearance" of this SceneNode.
-	int vertexArrayObjectID;
+	int vertexArrayObjectID = -1; // for objects not to draw
 } SceneNode;
 
 // Struct for keeping track of 2D coordinates
