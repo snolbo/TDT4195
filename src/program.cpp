@@ -4,6 +4,8 @@
 #include "gloom/sceneGraph.hpp"
 #include <glm/ext.hpp>
 
+#include <iostream>
+
 #include <math.h>
 #include <vector>
 
@@ -23,6 +25,14 @@ glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
 float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
 
+float deltaAnimationTime;
+
+SceneNode* root;
+bool noTarget = true;
+std::vector<glm::vec3> destinationPoints;
+glm::vec3 destinationLocation;
+int pointIndex = 0;
+
 
 bool firstMouse = true;
 float yaw = 0.0f;	// yaw is initialized to -90.0 degrees since a yaw of 0.0 results in a direction vector pointing to the right so we initially rotate a bit to the left.
@@ -33,6 +43,7 @@ float fov = 45.0f;
 
 
 
+/* Data for prevoius exercises
 // DATA POINTS, INDICES AND COLORS
 static  GLfloat vertices[] = {
 	0.1f,  0.1f, 0.0f,  // top right
@@ -183,92 +194,67 @@ static GLfloat colors3Exchanged[]{
 };
 static int colors3Length = 36;
 
-
+*/
 
 
 static GLfloat headVertices[] = {
 	// head front
-	-0.4f, 2.4f, 0.4f,
-	 0.4f, 2.4f, 0.4f,
-	 0.4f, 3.2f, 0.4f,
-	-0.4f, 3.2f, 0.4f,
+	-0.4f, 0.0f, 0.4f,
+	 0.4f, 0.0f, 0.4f,
+	 0.4f, 0.8f, 0.4f,
+	-0.4f, 0.8f, 0.4f,
 
 	// head back
-	-0.4f, 2.4f, -0.4f,
-	 0.4f, 2.4f, -0.4f,
-	 0.4f, 3.2f, -0.4f,
-	-0.4f, 3.2f, -0.4f
+	-0.4f, 0.0f, -0.4f,
+	 0.4f, 0.0f, -0.4f,
+	 0.4f, 0.8f, -0.4f,
+	-0.4f, 0.8f, -0.4f
 };
 
 static GLfloat torsoVertices[] = {
 	// torso front
-	-0.4f, 1.2f, 0.2f,
-	0.4f, 1.2f, 0.2f,
-	0.4f, 2.4f, 0.2f,
-	-0.4f, 2.4f, 0.2f,
-
-	// torso back
-	-0.4f, 1.2f, -0.2f,
-	0.4f, 1.2f, -0.2f,
-	0.4f, 2.4f, -0.2f,
-	-0.4f, 2.4f, -0.2f
-};
-
-static GLfloat leftArmVertices[] = {
-	// arm front
-	-0.8f, 1.2f, 0.2f,
-	-0.4f, 1.2f, 0.2f,
-	-0.4f, 2.4f, 0.2f,
-	-0.8f, 2.4f, 0.2f,
-
-	// arm back
-	-0.8f, 1.2f, -0.2f,
-	-0.4f, 1.2f, -0.2f,
-	-0.4f, 2.4f, -0.2f,
-	-0.8f, 2.4f, -0.2f
-};
-
-static GLfloat rightArmVertices[] = {
-	// arm front
-	0.4f, 1.2f, 0.2f,
-	0.8f, 1.2f, 0.2f,
-	0.8f, 2.4f, 0.2f,
-	0.4f, 2.4f, 0.2f,
-
-	// arm back
-	0.4f, 1.2f, -0.2f,
-	0.8f, 1.2f, -0.2f,
-	0.8f, 2.4f, -0.2f,
-	0.4f, 2.4f, -0.2f,
-};
-
-static GLfloat leftLegVertices[] = {
-	// leg front
 	-0.4f, 0.0f, 0.2f,
-	 0.0f, 0.0f, 0.2f,
-	 0.0f, 1.2f, 0.2f,
-	-0.4f, 1.2f, 0.2f, 	
-
-	// leg back
-	-0.4f, 0.0f, -0.2f,
-	 0.0f, 0.0f, -0.2f,
-	 0.0f, 1.2f, -0.2f,
-	-0.4f, 1.2f, -0.2f,
-
-};
-static GLfloat rightLegVertices[] = {
-	// leg front
-	0.0f, 0.0f, 0.2f,
 	0.4f, 0.0f, 0.2f,
 	0.4f, 1.2f, 0.2f,
-	0.0f, 1.2f, 0.2f,
+	-0.4f, 1.2f, 0.2f,
 
-	// leg back
-	0.0f, 0.0f, -0.2f,
+	// torso back
+	-0.4f, 0.0f, -0.2f,
 	0.4f, 0.0f, -0.2f,
 	0.4f, 1.2f, -0.2f,
-	0.0f, 1.2f, -0.2f
+	-0.4f, 1.2f, -0.2f
 };
+
+static GLfloat armVertices[] = {
+	// arm front
+	-0.2f, 0.0f, 0.2f,
+	 0.2f, 0.0f, 0.2f,
+	 0.2, 1.2f, 0.2f,
+	-0.2f, 1.2f, 0.2f,
+
+	// arm back
+	-0.2f, 0.0f, -0.2f,
+	 0.2f, 0.0f, -0.2f,
+	 0.2f, 1.2f, -0.2f,
+	 -0.2f, 1.2f, -0.2f
+};
+
+
+static GLfloat legVertices[] = {
+	// leg front
+	-0.2f, 0.0f, 0.2f,
+	 0.2f, 0.0f, 0.2f,
+	 0.2f, 1.2f, 0.2f,
+	-0.2f, 1.2f, 0.2f, 	
+
+	// leg back
+	-0.2f, 0.0f, -0.2f,
+	 0.2f, 0.0f, -0.2f,
+	 0.2f, 1.2f, -0.2f,
+	-0.2f, 1.2f, -0.2f,
+
+};
+
 int bodyPartVerticesLength = 24;
 
 static GLint indicesBodyPart[] = {
@@ -315,30 +301,14 @@ static GLfloat bodyPartColors[]{
 };
 int bodyPartColorLength = 32;
 
-static GLfloat terrainVertices[] = {
-	-5.0f, 0.0f, 5.0f,
-	5.0f, 0.0f, 5.0f,
-	5.0f, 0.0f, -5.0f,
-	-5.0f, 0.0f, -5.0f
-};
-int terrainVerticesLength = 12;
-
-static GLint terrainIndices[] = {
-	0, 1, 2,
-	0, 2, 3
-};
-int terrainIndicesLength = 6;
-
-static GLfloat terrainColors[]{
-	0.0f, 0.0f, 1.0f, 1.0f,
-	0.0f, 0.0f, 1.0f, 1.0f,
-	0.0f, 0.0f, 1.0f, 1.0f,
-	0.0f, 0.0f, 1.0f, 1.0f
-};
-int terrainColorLength = 16;
 
 
-
+GLfloat terrainVert[420];
+GLint terrainInd[210];
+GLfloat terrainCol[560];
+int terrainVertLen = 420;
+int terrainIndLen = 210;
+int terrainColLen = 560;
 
 GLuint VAO[7], VBOIndices[7], VBOColors[7], EBO[7];
 int leftLegVAO, rightLegVAO, torsoVAO, leftArmVAO, rightArmVAO, headVAO, terrainVAO;
@@ -369,7 +339,9 @@ void runProgram(GLFWwindow* window)
 	shader.attach("../gloom/shaders/simple.frag");
 	shader.link();
 
-	
+	generateTerrainData();
+
+	// Generate buffers for all VAO and their data
 	glGenVertexArrays(7, VAO); // generate 1 VAO from array of VAO id's. We use only 1 here
 	glGenBuffers(7, VBOIndices);
 	glGenBuffers(7, VBOColors);
@@ -377,22 +349,21 @@ void runProgram(GLFWwindow* window)
 
 
 	// setting up VAO and VBO's with given data. Returns ID to created VAO
-	leftLegVAO = setupVOA(&VAO[0], &VBOIndices[0], &VBOColors[0], &EBO[0],  leftLegVertices, bodyPartVerticesLength, bodyPartColors, bodyPartColorLength, indicesBodyPart, indicesBodyPartLength);
-	rightLegVAO = setupVOA(&VAO[1], &VBOIndices[1], &VBOColors[1], &EBO[1], rightLegVertices, bodyPartVerticesLength, bodyPartColors, bodyPartColorLength, indicesBodyPart, indicesBodyPartLength);
+	leftLegVAO = setupVOA(&VAO[0], &VBOIndices[0], &VBOColors[0], &EBO[0],  legVertices, bodyPartVerticesLength, bodyPartColors, bodyPartColorLength, indicesBodyPart, indicesBodyPartLength);
+	rightLegVAO = setupVOA(&VAO[1], &VBOIndices[1], &VBOColors[1], &EBO[1], legVertices, bodyPartVerticesLength, bodyPartColors, bodyPartColorLength, indicesBodyPart, indicesBodyPartLength);
 	torsoVAO = setupVOA(&VAO[2], &VBOIndices[2], &VBOColors[2], &EBO[2], torsoVertices, bodyPartVerticesLength, bodyPartColors, bodyPartColorLength, indicesBodyPart, indicesBodyPartLength);
-	leftArmVAO = setupVOA(&VAO[3], &VBOIndices[3], &VBOColors[3], &EBO[3], leftArmVertices, bodyPartVerticesLength, bodyPartColors, bodyPartColorLength, indicesBodyPart, indicesBodyPartLength);
-	rightArmVAO = setupVOA(&VAO[4], &VBOIndices[4], &VBOColors[4], &EBO[4], rightArmVertices, bodyPartVerticesLength, bodyPartColors, bodyPartColorLength, indicesBodyPart, indicesBodyPartLength);
+	leftArmVAO = setupVOA(&VAO[3], &VBOIndices[3], &VBOColors[3], &EBO[3], armVertices, bodyPartVerticesLength, bodyPartColors, bodyPartColorLength, indicesBodyPart, indicesBodyPartLength);
+	rightArmVAO = setupVOA(&VAO[4], &VBOIndices[4], &VBOColors[4], &EBO[4], armVertices, bodyPartVerticesLength, bodyPartColors, bodyPartColorLength, indicesBodyPart, indicesBodyPartLength);
 	headVAO = setupVOA(&VAO[5], &VBOIndices[5], &VBOColors[5], &EBO[5], headVertices, bodyPartVerticesLength, bodyPartColors, bodyPartColorLength, indicesBodyPart, indicesBodyPartLength);
-	terrainVAO = setupVOA(&VAO[6], &VBOIndices[6], &VBOColors[6], &EBO[6], terrainVertices, terrainVerticesLength, terrainColors, terrainColorLength, terrainIndices, terrainIndicesLength);
+	terrainVAO = setupVOA(&VAO[6], &VBOIndices[6], &VBOColors[6], &EBO[6], terrainVert, terrainVertLen, terrainCol, terrainColLen, terrainInd, terrainIndLen);
 
 	// get root node for scene graph
-	SceneNode* root = createSceneNode();
-
-
-
+	root = constructRootSceneNode();
 
 	// Projection matrix
 	glm::mat4 projectionMatrix = glm::perspective(glm::radians(45.0f), (float)16 / (float)9, 1.0f, 100.0f);  // TASK 4 b)
+
+	deltaAnimationTime = getTimeDeltaSeconds();
 
 	// Rendering Loop
 	while (!glfwWindowShouldClose(window))
@@ -400,11 +371,15 @@ void runProgram(GLFWwindow* window)
 		// Clear colour and depth buffers
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		deltaAnimationTime = getTimeDeltaSeconds();
+
+
 		shader.activate();
 		/*
 		PRO PERFORMANCE TIP: Its best to do matrix multiplication on cpu, not on gpu if the matrix used can be passed as a uniform.
 		Rather do 5 matrix multiplication on cpu with cpu clock speed than #cores * 5 multiplication on gpu with GPU core clock speed
 		*/
+		updateSceneGraph(root);
 
 		// Create transformation matrix
 		glm::mat4 translationMatrix = glm::translate(-camPosition); // must translate world in negative direction to create illusion of moving in positive
@@ -413,45 +388,16 @@ void runProgram(GLFWwindow* window)
 		glm::mat4 transformationMatrixRotationVersion = projectionMatrix * rotYaw * rotPitch * translationMatrix;
 
 
-		// This creates the same translateion + rotation matrix as above. This is how you are supposed to do int
+		// This creates the same translateion + rotation matrix as above. This is how you are supposed to do it
 		// glm::mat4 view = glm::lookAt(camPosition, camPosition + camFront, camUp); // param: position, target/inverse direction, up
+		/*
 		glm::mat4 viewBasisMatrix = transpose(glm::mat4(glm::vec4(camRight, 0.0f), glm::vec4(camUp, 0.0f), glm::vec4(-camDirection, 0.0f), glm::vec4(0, 0, 0, 1)));
 		glm::mat4 viewTransform = viewBasisMatrix * translationMatrix;
 		glm::mat4 transformationMatrixWCS2ECSVersion = projectionMatrix * viewTransform;
-
-
-		// Pass the transformation matrix to the shader
-		glUniformMatrix4fv(0, 1, GL_FALSE, glm::value_ptr(transformationMatrixRotationVersion));
+		*/
 
 		
-		glBindVertexArray(leftLegVAO);
-		glEnableVertexAttribArray(leftLegVAO); // Enable this vertex attribute pointer for the VAO
-		glDrawElements(GL_TRIANGLES, indicesBodyPartLength, GL_UNSIGNED_INT, 0);
-
-		glBindVertexArray(rightLegVAO);
-		glEnableVertexAttribArray(rightLegVAO); // Enable this vertex attribute pointer for the VAO
-		glDrawElements(GL_TRIANGLES, indicesBodyPartLength, GL_UNSIGNED_INT, 0);
-		
-		glBindVertexArray(torsoVAO);
-		glEnableVertexAttribArray(torsoVAO); // Enable this vertex attribute pointer for the VAO
-		glDrawElements(GL_TRIANGLES, indicesBodyPartLength, GL_UNSIGNED_INT, 0);
-
-		glBindVertexArray(leftArmVAO);
-		glEnableVertexAttribArray(leftArmVAO); // Enable this vertex attribute pointer for the VAO
-		glDrawElements(GL_TRIANGLES, indicesBodyPartLength, GL_UNSIGNED_INT, 0);
-
-		glBindVertexArray(rightArmVAO);
-		glEnableVertexAttribArray(rightArmVAO); // Enable this vertex attribute pointer for the VAO
-		glDrawElements(GL_TRIANGLES, indicesBodyPartLength, GL_UNSIGNED_INT, 0);
-
-		glBindVertexArray(headVAO);
-		glEnableVertexAttribArray(headVAO); // Enable this vertex attribute pointer for the VAO
-		glDrawElements(GL_TRIANGLES, indicesBodyPartLength, GL_UNSIGNED_INT, 0);
-
-	
-		glBindVertexArray(terrainVAO);
-		glEnableVertexAttribArray(terrainVAO); // Enable this vertex attribute pointer for the VAO
-		glDrawElements(GL_TRIANGLES, terrainIndicesLength, GL_UNSIGNED_INT, 0);
+		drawSceneNodes(root, transformationMatrixRotationVersion);
 
 
 
@@ -468,16 +414,125 @@ void runProgram(GLFWwindow* window)
 	shader.destroy();
 }
 
+/*
+	Generates vertices, colors and indices for drawing the terrain
+*/
+void generateTerrainData() {
+	int rows = 6;
+	int cols = 8;
+
+	// Generate vertex data for terrain
+	for (int i = 0; i < (rows - 1); i++) {
+		for (int j = 0; j < (cols - 1); j++) {
+
+			int index = 12 * i*(cols - 1) + 12 * j;
+
+			terrainVert[index + 0] = (j + 0);
+			terrainVert[index + 1] = 0.0f;
+			terrainVert[index + 2] = -(i + 0);
+
+			terrainVert[index + 3] = (j + 1);
+			terrainVert[index + 4] = 0.0f;
+			terrainVert[index + 5] = -(i + 0);
+
+			terrainVert[index + 6] = (j + 1);
+			terrainVert[index + 7] = 0.0f;
+			terrainVert[index + 8] = -(i + 1);
+
+			terrainVert[index + 9] = (j + 0);
+			terrainVert[index + 10] = 0.0f;
+			terrainVert[index + 11] = -(i + 1);
+			// printf(" (%f %f %f)   (%f %f %f)   (%f %f %f)   (%f %f %f) ", terrainVert[index], terrainVert[index+1], terrainVert[index+2], terrainVert[index+3], terrainVert[index+4], terrainVert[index+5], terrainVert[index+6], terrainVert[index+7], terrainVert[index+8], terrainVert[index+9], terrainVert[index+10], terrainVert[index+11]);
+			// printf(" (%d %d %d) (%d %d %d) (%d %d %d) (%d %d %d)       ", (index + 0), (index + 1), (index + 2), (index + 2), (index + 3), (index + 4), (index + 5), (index + 6), (index + 7), (index + 8), (index + 9), (index + 11));
+		}
+		printf("\n");
+	}
+	printf("\n");
+
+	// Generate index data for terrainVertices
+	for (int ii = 0; ii < (rows - 1)*(cols - 1); ii++) {
+		int index = ii * 6;
+		int indexV = 4 * ii;
+		terrainInd[index + 0] = indexV + 0;
+		terrainInd[index + 1] = indexV + 1;
+		terrainInd[index + 2] = indexV + 2;
+
+		terrainInd[index + 3] = indexV + 0;
+		terrainInd[index + 4] = indexV + 2;
+		terrainInd[index + 5] = indexV + 3;
+
+		printf("  (%d %d %d) (%d %d %d)  ", indexV, indexV + 1, indexV + 2, indexV, indexV + 2, indexV + 3);
+	}
+
+
+	// Generate colordata for terrainVertices
+	int r = 1.0f;
+	int g = 0.0f;
+	int b = 0.0f;
+	int color1 = 1;
+	for (int ii = 0; ii < (rows - 1)*(cols - 1) * 4; ii++) {
+		if (ii % 4 == 0) {
+			color1 = !color1;
+			if (color1) {
+				r = 1.0f;
+				g = 1.0f;
+				b = 0.0f;
+				//r = 1.0f;
+				//g = 0.0f;
+				//b = 0.0f;
+			}
+			else {
+				r = 0.0f;
+				g = 0.0f;
+				b = 1.0f;
+				//r = 0.0f;
+				//g = 0.0f;
+				//b = 1.0f;
+			}
+		}
+		int index = 4 * ii;
+		terrainCol[index + 0] = r;
+		terrainCol[index + 1] = g;
+		terrainCol[index + 2] = b;
+		terrainCol[index + 3] = 1.0f;
+	}
+}
+
+
+/*
+	Creates scenenones, sets initial values, and relate them to eachother. Also chooses which point to visit first
+*/
 SceneNode* constructRootSceneNode() {
+
+	// Locations to visit
+	glm::vec3 point1 = glm::vec3(1.5, 0.24, -0.5);
+	glm::vec3 point2 = glm::vec3(4.5, 0.24, -1.5);
+	glm::vec3 point3 = glm::vec3(2.5, 0.24, -3.5);
+	glm::vec3 point4 = glm::vec3(4.5, 0.24, -4.5);
+	glm::vec3 point5 = glm::vec3(5.5, 0.24, -2.5);
+
+
+	destinationPoints.push_back(point1);
+	destinationPoints.push_back(point2);
+	destinationPoints.push_back(point3);
+	destinationPoints.push_back(point4);
+	destinationPoints.push_back(point5);
+
+	destinationLocation = destinationPoints.at(pointIndex);
+
 	SceneNode* root = createSceneNode();
+
 	SceneNode* leftArm = createSceneNode();
 	SceneNode* rightArm = createSceneNode();
 	SceneNode* leftLeg = createSceneNode();
 	SceneNode* rightLeg = createSceneNode();
 	SceneNode* head = createSceneNode();
 	SceneNode* torso = createSceneNode();
+	SceneNode* terrain = createSceneNode();
 
 	addChild(root, torso);
+	addChild(root, terrain);
+
 	addChild(torso, head);
 
 	addChild(torso, leftArm);
@@ -486,6 +541,7 @@ SceneNode* constructRootSceneNode() {
 	addChild(torso, leftLeg);
 	addChild(torso, rightLeg);
 
+	terrain->vertexArrayObjectID = terrainVAO;
 	torso->vertexArrayObjectID = torsoVAO;
 	head->vertexArrayObjectID = headVAO;
 
@@ -495,13 +551,155 @@ SceneNode* constructRootSceneNode() {
 	leftArm->vertexArrayObjectID = leftArmVAO;
 	rightArm->vertexArrayObjectID = rightArmVAO;
 
-	// HOW ARE THESE INITIAL VALUES TO BE DEFINED? RELATIVE TO THE PARENT? RELATIVE TO ROOT? RELATIVE TO ORIGO????
-	torso->y = 2.4f; // set reference point of torso to connection between head and torso
+	root->x = 0.0f;
+	root->y = 0.0f;
+	root->z = 0.0f;
+
+	terrain->x = 0.0f;
+	terrain->y = 0.0f;
+	terrain->z = 0.0f;
+	
+	torso->x = 0.0f;
+	torso->y = 0.24;
+	torso->z = 0.0f;
+	torso->rotationY = 0;
+	torso->directionVector = glm::vec3(0.0f, 0.0f, 1.0f);
+	torso->behavior = 2;
+	torso->rotationDirection = up;
+
+	head->y = 1.2f;
+
+	leftArm->x = -0.6;
+	leftArm->yref = 1.2;
+	leftArm->behavior = 1;
+	leftArm->rotationAngularDirection = -1;
+
+	rightArm->x = 0.6;
+	rightArm->yref = 1.2;
+	rightArm->behavior = 1;
+
+	leftLeg->y = -1.2f;
+	leftLeg->x = -0.2;
+	leftLeg->yref = 1.2;
+
+	rightLeg->y = -1.2f;
+	rightLeg->x = 0.2;
+	rightLeg->yref = 1.2;
+	rightLeg->rotationAngularDirection = -1;
+
+	leftLeg->behavior = 1;
+	rightLeg->behavior = 1;
+		
+	root->currentTransformationMatrix = glm::mat4(1.0f);
+
 	return root;
 }
 
-void updateSceneGraph() {
+/*
+	Updates graph node to handle animation
+*/
+void updateSceneGraph(SceneNode* node) {
 
+	glm::mat4 nodeTransformationMatrix = glm::mat4(1.0f);
+	glm::vec3 relativePosition = glm::vec3(node->x, node->y, node->z);
+
+
+	if (node->vertexArrayObjectID == torsoVAO) {
+		glm::vec3 distance = destinationLocation - relativePosition;
+		if (glm::length(distance) < 0.05) {
+			pointIndex++;
+			if (pointIndex > destinationPoints.size()-1) {
+				pointIndex = 0;
+			}
+			destinationLocation = destinationPoints.at(pointIndex);
+			noTarget = true;
+		}
+		
+		if (noTarget) {
+			float angle = glm::dot(glm::normalize(node->directionVector), glm::normalize(destinationLocation - relativePosition));
+			if (abs(angle) >0.999) {
+				angle = angle - 0.0001;
+			}
+			printf("angle: %f  dir> %f %f %f   dest %f %f %f\n", (angle), node->directionVector.x, node->directionVector.y, node->directionVector.z, destinationLocation.x, destinationLocation.y, destinationLocation.z);
+			glm::vec3 rotationCross = glm::cross(node->directionVector, destinationLocation - relativePosition);
+			int dir = 0;
+			if (rotationCross.y < 0) {
+				dir = -1;
+			}
+			else {
+				dir = 1;
+			}
+			angle = glm::acos(angle);
+			angle = dir*angle;
+			node->rotationY += angle;
+			noTarget = false;
+			node->directionVector = glm::normalize(destinationLocation - relativePosition);
+		}
+
+		glm::mat4 scale = glm::scale(glm::vec3(0.2f, 0.2f, 0.2f));
+		glm::mat4 rotY = glm::rotate(node->rotationY, up);
+		nodeTransformationMatrix =  rotY * scale * nodeTransformationMatrix;
+
+	
+
+		node->x += node->directionVector.x * deltaAnimationTime ;
+		node->y += node->directionVector.y * deltaAnimationTime ;
+		node->z += node->directionVector.z * deltaAnimationTime ;
+	}
+	else if (node->behavior == 1) { // nodes connected to torso
+		int maxDegrees = 60;
+
+		if (glm::degrees(node->rotationX) > maxDegrees) {
+			node->rotationAngularDirection = -1;
+		}
+		else if (glm::degrees(node->rotationX) < -maxDegrees) {
+			node->rotationAngularDirection = 1;
+		}
+		node->rotationX += node->rotationAngularDirection * deltaAnimationTime * 1.5;
+		glm::vec3 referencePoint = glm::vec3(node->xref, node->yref, node->zref);
+		glm::mat4 referencePointsTranslation = glm::translate(-referencePoint);
+		glm::mat4 invReferencePointsTranslation = glm::translate(referencePoint);
+		glm::mat4 rotX = glm::rotate(node->rotationX, node->rotationDirection);
+
+		nodeTransformationMatrix = invReferencePointsTranslation * rotX * referencePointsTranslation;
+	}
+
+
+	glm::mat4 translationMatrix = glm::translate(relativePosition);
+	nodeTransformationMatrix = translationMatrix * nodeTransformationMatrix;
+	node->currentTransformationMatrix = nodeTransformationMatrix;
+
+	// Recursive call on all children
+	for (auto child : node->children) {
+		if (child->vertexArrayObjectID == 0) {
+			continue;
+		}
+		updateSceneGraph(child);
+	}
+}
+
+/*
+	Draws scenenodes all calls this function in a recursive matter on all of its children
+*/
+void drawSceneNodes(SceneNode* node, glm::mat4 accumulatedTransformationMatrix) {
+	int indexLength = indicesBodyPartLength;
+	if (node->vertexArrayObjectID == terrainVAO) { // LOLOLOLOLOLOLOLOL HOW TO HANDLE THIS????
+		indexLength = terrainIndLen;
+	}
+
+	accumulatedTransformationMatrix *= node->currentTransformationMatrix;
+	glUniformMatrix4fv(0, 1, GL_FALSE, glm::value_ptr(accumulatedTransformationMatrix));
+	glBindVertexArray(node->vertexArrayObjectID);
+	glEnableVertexAttribArray(node->vertexArrayObjectID);
+	glDrawElements(GL_TRIANGLES, indexLength, GL_UNSIGNED_INT, 0);
+
+	// Calls this function for all this node's children
+	for (auto child : node->children) {
+		if (child->vertexArrayObjectID == 0) {
+			continue;
+		}
+		drawSceneNodes(child, accumulatedTransformationMatrix);
+	}
 }
 
 /**
@@ -519,7 +717,7 @@ void handleKeyboardInput(GLFWwindow* window)
 	float currentFrame = glfwGetTime();
 	deltaTime = currentFrame - lastFrame;
 	lastFrame = currentFrame;
-	float camSpeed = 2.5f * deltaTime;
+	float camSpeed = 5.0f * deltaTime;
 
 	// Translation !!! Note that these controls will move left right forward backwards relative to the camera's orientation, and not the world, therefore it is kind of a floating object in space and not a standing one
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
@@ -619,7 +817,9 @@ void updateAngles(float xoffset, float yoffset, float sensitivity) {
 
 
 
-
+/*
+	Sets up a VAO with the given buffers and returns it' ID
+*/
 int setupVOA(GLuint* VAO, GLuint* VBOIndices, GLuint* VBOColors, GLuint* EBO, float* coordinates, int numCoordinates, float* colorValues, int numColorValues, int* indices, int numIndices) {
 
 	glBindVertexArray(*VAO); // Sets this VAO as currently active VAO, only 1 can be active at a time. Drawing mutiple types of object can be done by switching out active bound VAO. Usually we bind, draw with, and unbind VAO's

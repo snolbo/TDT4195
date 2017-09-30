@@ -19,7 +19,10 @@ void handleKeyboardInput(GLFWwindow* window);
 
 int setupVOA(GLuint* VAO, GLuint* VBOIndices, GLuint* VBOColors, GLuint* EBO, float* coordinates, int numCoordinates, float* colorValues, int numColorValues, int* indices, int numIndices);
 SceneNode* constructRootSceneNode();
-void updateSceneGraph();
+void updateSceneGraph(SceneNode* parent);
+void drawSceneNodes(SceneNode* node, glm::mat4 accumulatedTransformationMatrix);
+void generateTerrainData();
+
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void updateAngles(float xoffset, float yoffset, float sensitivity);

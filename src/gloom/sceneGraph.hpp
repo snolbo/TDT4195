@@ -38,19 +38,33 @@ typedef struct SceneNode {
 	std::vector<SceneNode*> children;
 	
 	// The node's rotation relative to its parent
-	float rotationX, rotationY, rotationZ;
+	float rotationX = 0.0f, rotationY = 0.0f, rotationZ = 0.0f;
 	
 	// The node's position relative to its parent
 	float x, y, z;
 	
 	// The node's size
 	float scaleFactor;
+
+	// Distance from origo of object to reference point
+	float xref = 0, yref = 0, zref = 0;
+
+	// variable to store the angular direction of the rotation. Used to let objects rotate the opposite direction of eachother, fex. arms
+	int rotationAngularDirection = 1;
 	
+	// need point of reference relative to node's position
+
+	int behavior = 0; // 0 is none, 1 is rotation
+
+
 	// The node's speed at which it rotates (orbits)
 	float rotationSpeedRadians;
 	
+	glm::vec3 directionVector;
+
+	// Rotation direction can be deduced based on rotation and translation relative to parent
 	// A normalised vector defining the axis around which the node rotates
-	glm::vec3 rotationDirection;
+	glm::vec3 rotationDirection = glm::vec3(1.0f, 0.0f, 0.0f); // set this as default
 	
 	// A transformation matrix representing the transformation of the node's location relative to its parent. This matrix is updated every frame.
 	glm::mat4 currentTransformationMatrix;
