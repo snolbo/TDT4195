@@ -449,7 +449,7 @@ void updateSceneGraph(SceneNode* node) {
 
 		glm::vec3 distance = destinationLocation - relativePosition;
 		// If target reached or first time selecting target, choose new target from list, update moving direction and orientation
-		if (glm::length(distance) < 0.1 || firstTarget) {
+		if (glm::length(distance) < 0.2 || firstTarget) {
 			pointIndex++;
 			if (pointIndex > destinationPoints.size()-1) {
 				pointIndex = 0;
@@ -482,9 +482,9 @@ void updateSceneGraph(SceneNode* node) {
 		nodeTransformationMatrix =  rotY * scale * nodeTransformationMatrix;
 	
 
-		node->x += node->directionVector.x * deltaAnimationTime ;
-		node->y += node->directionVector.y * deltaAnimationTime ;
-		node->z += node->directionVector.z * deltaAnimationTime ;
+		node->x += node->directionVector.x * deltaAnimationTime/2 ;
+		node->y += node->directionVector.y * deltaAnimationTime/2 ;
+		node->z += node->directionVector.z * deltaAnimationTime/2 ;
 	}
 	else if (node->behavior == 1) { // arms and legs that rotate
 		int maxDegrees = 60;
