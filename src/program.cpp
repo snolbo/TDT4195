@@ -307,28 +307,29 @@ void generateTerrainData() {
 
 
 	// Generate colordata for terrainVertices
-	int r = 1.0f;
-	int g = 0.0f;
-	int b = 0.0f;
+	float r = 1.0f;
+	float g = 0.0f;
+	float b = 0.0f;
 	int color1 = 1;
 	for (int ii = 0; ii < (rows - 1)*(cols - 1) * 4; ii++) {
 		if (ii % 4 == 0) {
 			color1 = !color1;
 			if (color1) {
-				r = 1.0f;
-				g = 1.0f;
-				b = 0.0f;
 				//r = 1.0f;
-				//g = 0.0f;
+				//g = 1.0f;
 				//b = 0.0f;
+				r = 0.4f;
+				g = 0.0f;
+				b = 0.6f;
 			}
 			else {
-				r = 0.0f;
-				g = 0.0f;
-				b = 1.0f;
 				//r = 0.0f;
 				//g = 0.0f;
 				//b = 1.0f;
+				r = 0.0;
+				g = 0.5f;
+				b = 0.0f;
+
 			}
 		}
 		int index = 4 * ii;
