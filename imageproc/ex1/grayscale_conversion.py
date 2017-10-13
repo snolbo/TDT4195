@@ -1,4 +1,5 @@
 from PIL import Image
+from PIL import ImageFilter
 from math import floor
 from math import sqrt
 from numpy import array
@@ -58,6 +59,7 @@ def gamma_transformation(grey_im, gamma, bits):
     im.putdata(new_data)
     return im
 
+
 # Since we were not asked about keeping adding and removing padding, this function removes kernel_border_length rows/cols of pixels from all sides
 def spatial_convolution(gray_im, kernel):
     data = list(gray_im.getdata())
@@ -68,8 +70,12 @@ def spatial_convolution(gray_im, kernel):
     new_data = []
     index = lambda x, y: y*size_x + x
     kernel_index = lambda i, j: i*kernel_border_length + j
-    for y in range(side_padding, size_y - side_padding):
-        for x in range(side_padding, size_x - side_padding):
+    for y in range(0, size_y):
+        for x in range(0, size_x):
+
+            if y < side_padding or y >= size_y - side_padding or x < side_padding or x >= size_x - side_padding:
+                new_data.append(255)
+                continue
             #print(index(x,y))
             conv_sum = 0
             for i in range(0, kernel_border_length):
@@ -78,35 +84,114 @@ def spatial_convolution(gray_im, kernel):
                     #print(index(x + j - side_padding, y + i - side_padding))
                     conv_sum += data[index(x + j - side_padding, y + i - side_padding)] * kernel[kernel_index(i, j)]
             new_data.append(conv_sum)
-    new_im = Image.new("I", (size_x - 2*side_padding, size_y - 2*side_padding))
+    # new_im = Image.new("I", (size_x - 2*side_padding, size_y - 2*side_padding))
+    new_im = Image.new("I", gray_im.size)
     new_im.putdata(new_data)
-    new_im.show()
     return new_im
 
 
-#im = Image.open("Lenna.png")
-im = Image.open("rainbow.jpg")
+def spatial_convolution_rgb(rgb_im, kernel):
+    data_red = []
+    data_green = []
+    data_blue = []
+    color_data = rgb_im.getdata()
+    for values in color_data:
+        data_red.append(values[0])
+        data_green.append(values[1])
+        data_blue.append(values[2])
+
+    ## LOL PLEASE DONT JUDGE ME
+    red_im = Image.new("I", rgb_im.size)
+    red_im.putdata(data_red)
+    green_im = Image.new("I", rgb_im.size)
+    green_im.putdata(data_green)
+    blue_im = Image.new("I", rgb_im.size)
+    blue_im.putdata(data_blue)
+
+    red_smooth = spatial_convolution(red_im, kernel3)
+    green_smooth = spatial_convolution(green_im, kernel3)
+    blue_smooth = spatial_convolution(blue_im, kernel3)
+
+    red_smooth_data = red_smooth.getdata()
+    green_smooth_data = green_smooth.getdata()
+    blue_smooth_data = blue_smooth.getdata()
+    rgb_data = []
+    for i in range(0, len(red_smooth_data)):
+        val = (red_smooth_data[i], green_smooth_data[i], blue_smooth_data[i])
+        rgb_data.append(val)
+
+    smooth_rbg_image = Image.new("RGB", rgb_im.size)
+    smooth_rbg_image.putdata(rgb_data)
+    return smooth_rbg_image
+
+
+def gradient_mag(Ix, Iy):
+    x_data = Ix.getdata()
+    y_data = Iy.getdata()
+    magnitude = []
+    for i in range(0, len(x_data)):
+        mag = sqrt(x_data[i]**2 + y_data[i]**2)
+        magnitude.append(mag)
+    new_image = Image.new("F", Ix.size)
+    new_image.putdata(magnitude)
+    return new_image
+
+im = Image.open("Lenna.png")
+#im = Image.open("rainbow.jpg")
 #im = Image.open("vibrant.jpg")
 #im = Image.open("dim.jpg")
 
 
-rgb_im = im.convert("RGB")
-#rgb_im.show()
-img = rgb2gray(im, avg_lum_preserve)
-#img.show()
 
-img_inv = intensity_transformation(im)
+rgb_im = im.convert("RGB")
+rgb_im.show()
+
+img = rgb2gray(im, avg_lum_preserve)
+img.show()
+
+# img_inv = intensity_transformation(im)
 #img_inv.show()
 
-im_gamma = gamma_transformation(img, 2.2, 8)
+# im_gamma = gamma_transformation(img, 2.2, 8)
 
-kernel = array([1, 1, 1,
+kernel3 = array([1, 1, 1,
                 1, 1, 1,
                 1, 1, 1]) / 9
 
-smooth_img = spatial_convolution(img,kernel)
+kernel5 = array([1, 4, 6, 4,
+                 4, 16, 24, 16, 4,
+                 6, 24, 36, 24, 6,
+                 4, 16, 24, 16, 4,
+                 1, 4, 6, 4]) / 256
+
+
+# smooth_img = spatial_convolution(img, kernel3)
+# smooth_img.show()
+#
+# smooth_img2 = spatial_convolution(img, kernel5)
+# smooth_img2.show()
+
+
+# smooth_rbg_image = spatial_convolution_rgb(rgb_im, kernel3)
+# smooth_rbg_image.show()
+#
+# smooth_rbg_image2 = spatial_convolution_rgb(rgb_im, kernel5)
+# smooth_rbg_image2.show()
 
 
 
-#rgb2gray(im, avg)
-print()
+grad_x = [-1, 0, 1, -2, 0, 2, -1, 0, 1]
+grad_y = [-1, -2, -1, 0, 0, 0, 1, 2, 1]
+# fucntion i made only work with nxn kernels, so no optimization with separating kernels here
+Ix = spatial_convolution(img, grad_x)
+Iy = spatial_convolution(img, grad_y)
+Ix.show()
+Iy.show()
+
+
+grad_mag = gradient_mag(Ix, Iy)
+grad_mag.show()
+
+
+
+

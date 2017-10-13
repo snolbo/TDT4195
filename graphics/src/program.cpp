@@ -682,4 +682,3 @@ int setupVOA(GLuint* VAO, GLuint* VBOIndices, GLuint* VBOColors, GLuint* EBO, fl
 	glBindVertexArray(0);
 	return *VAO;
 }
->>>>>>> 3adec3481c79bd29f39c7a09d4af3a7b78b9bc81:src/program.cpp
