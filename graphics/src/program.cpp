@@ -89,7 +89,7 @@ static GLfloat legVertices[] = {
 	-0.2f, 0.0f, 0.2f,
 	 0.2f, 0.0f, 0.2f,
 	 0.2f, 1.2f, 0.2f,
-	-0.2f, 1.2f, 0.2f, 	
+	-0.2f, 1.2f, 0.2f,
 
 	// leg back
 	-0.2f, 0.0f, -0.2f,
@@ -117,7 +117,7 @@ static GLint indicesBodyPart[] = {
 	1, 5, 6,
 	1, 6, 2,
 
-	//top 
+	//top
 	3, 2, 6,
 	3, 6, 7,
 
@@ -133,7 +133,7 @@ static GLfloat bodyPartColors[]{
 	0.0f, 1.0f, 0.0f, 1.0f,
 	0.0f, 1.0f, 0.0f, 1.0f,
 	0.0f, 1.0f, 0.0f, 1.0f,
-	
+
 	//back
 	1.0f, 0.0f, 0.0f, 1.0f,
 	1.0f, 0.0f, 0.0f, 1.0f,
@@ -307,28 +307,29 @@ void generateTerrainData() {
 
 
 	// Generate colordata for terrainVertices
-	int r = 1.0f;
-	int g = 0.0f;
-	int b = 0.0f;
+	float r = 1.0f;
+	float g = 0.0f;
+	float b = 0.0f;
 	int color1 = 1;
 	for (int ii = 0; ii < (rows - 1)*(cols - 1) * 4; ii++) {
 		if (ii % 4 == 0) {
 			color1 = !color1;
 			if (color1) {
-				r = 1.0f;
-				g = 1.0f;
-				b = 0.0f;
 				//r = 1.0f;
-				//g = 0.0f;
+				//g = 1.0f;
 				//b = 0.0f;
+				r = 0.4f;
+				g = 0.0f;
+				b = 0.6f;
 			}
 			else {
-				r = 0.0f;
-				g = 0.0f;
-				b = 1.0f;
 				//r = 0.0f;
 				//g = 0.0f;
 				//b = 1.0f;
+				r = 0.0;
+				g = 0.5f;
+				b = 0.0f;
+
 			}
 		}
 		int index = 4 * ii;
@@ -399,7 +400,7 @@ SceneNode* constructRootSceneNode() {
 	terrain->x = 0.0f;
 	terrain->y = 0.0f;
 	terrain->z = 0.0f;
-	
+
 	torso->x = 0.0f;
 	torso->y = 0.24;
 	torso->z = 0.0f;
@@ -430,7 +431,7 @@ SceneNode* constructRootSceneNode() {
 
 	leftLeg->behavior = 1;
 	rightLeg->behavior = 1;
-		
+
 	root->currentTransformationMatrix = glm::mat4(1.0f);
 
 	return root;
@@ -444,7 +445,7 @@ void updateSceneGraph(SceneNode* node) {
 	glm::mat4 nodeTransformationMatrix = glm::mat4(1.0f);
 	glm::vec3 relativePosition = glm::vec3(node->x, node->y, node->z);
 
-	// Updates translation and general orientation of the body. 
+	// Updates translation and general orientation of the body.
 	if (node->vertexArrayObjectID == torsoVAO) {
 
 		glm::vec3 distance = destinationLocation - relativePosition;
@@ -475,12 +476,12 @@ void updateSceneGraph(SceneNode* node) {
 			firstTarget = false;
 			node->directionVector = glm::normalize(destinationLocation - relativePosition);
 		}
-		
+
 
 		glm::mat4 scale = glm::scale(glm::vec3(0.2f, 0.2f, 0.2f));
 		glm::mat4 rotY = glm::rotate(node->rotationY, up);
 		nodeTransformationMatrix =  rotY * scale * nodeTransformationMatrix;
-	
+
 
 		node->x += node->directionVector.x * deltaAnimationTime/2 ;
 		node->y += node->directionVector.y * deltaAnimationTime/2 ;
@@ -661,7 +662,7 @@ void updateAngles(float xoffset, float yoffset, float sensitivity) {
 int setupVOA(GLuint* VAO, GLuint* VBOIndices, GLuint* VBOColors, GLuint* EBO, float* coordinates, int numCoordinates, float* colorValues, int numColorValues, int* indices, int numIndices) {
 
 	glBindVertexArray(*VAO); // Sets this VAO as currently active VAO, only 1 can be active at a time. Drawing mutiple types of object can be done by switching out active bound VAO. Usually we bind, draw with, and unbind VAO's
-	
+
 	// Generate VBO for vertices
 	glBindBuffer(GL_ARRAY_BUFFER, *VBOIndices); // Any buffer calls we make (on the GL_ARRAY_BUFFER target) will be used to configure the currently bound buffer and.
 	glBufferData(GL_ARRAY_BUFFER, numCoordinates * sizeof(float), coordinates, GL_STATIC_DRAW); // Call to glBufferData with given data (vertices) now puts the data into bound VBO
@@ -681,3 +682,4 @@ int setupVOA(GLuint* VAO, GLuint* VBOIndices, GLuint* VBOColors, GLuint* EBO, fl
 	glBindVertexArray(0);
 	return *VAO;
 }
+>>>>>>> 3adec3481c79bd29f39c7a09d4af3a7b78b9bc81:src/program.cpp
