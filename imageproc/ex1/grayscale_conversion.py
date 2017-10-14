@@ -8,13 +8,14 @@ from numpy import array
 
 
 
-#Task 2 a)
+# TASK 2 a)
 def avg(tupp):
     sum = 0
     for el in tupp:
         sum += el
     return floor(el / 3)
 
+# TASK 2 a)
 def avg_lum_preserve(tupp):
     sum = 0
     rw = 0.2126
@@ -22,7 +23,7 @@ def avg_lum_preserve(tupp):
     bw = 0.0722
     return floor(tupp[0]*rw + tupp[1]*gw + tupp[2]*bw)
 
-
+# TASK 2 a)
 def rgb2gray(im, avg_fun):
     pixels = list(im.getdata())
     grey_data = []
@@ -32,6 +33,7 @@ def rgb2gray(im, avg_fun):
     grey_im.putdata(grey_data)
     return grey_im
 
+# TASK 3 a)
 def intensity_transformation(grey_im):
     pixels = list(grey_im.getdata())
     transformed_data = []
@@ -45,7 +47,7 @@ def intensity_transformation(grey_im):
     trans_im.putdata(transformed_data)
     return trans_im
 
-
+# Task 3 b)
 def gamma_transformation(grey_im, gamma, bits):
     L = 2**bits -1
     im = grey_im.convert("F")
@@ -60,7 +62,7 @@ def gamma_transformation(grey_im, gamma, bits):
     return im
 
 
-# Since we were not asked about keeping adding and removing padding, this function removes kernel_border_length rows/cols of pixels from all sides
+# Task 4 a)
 def spatial_convolution(gray_im, kernel):
     data = list(gray_im.getdata())
     size_x = gray_im.size[0]
@@ -84,12 +86,11 @@ def spatial_convolution(gray_im, kernel):
                     #print(index(x + j - side_padding, y + i - side_padding))
                     conv_sum += data[index(x + j - side_padding, y + i - side_padding)] * kernel[kernel_index(i, j)]
             new_data.append(conv_sum)
-    # new_im = Image.new("I", (size_x - 2*side_padding, size_y - 2*side_padding))
     new_im = Image.new("I", gray_im.size)
     new_im.putdata(new_data)
     return new_im
 
-
+# Task 4 b)
 def spatial_convolution_rgb(rgb_im, kernel):
     data_red = []
     data_green = []
@@ -136,24 +137,34 @@ def gradient_mag(Ix, Iy):
     new_image.putdata(magnitude)
     return new_image
 
+
+# Get image
 im = Image.open("Lenna.png")
 #im = Image.open("rainbow.jpg")
 #im = Image.open("vibrant.jpg")
 #im = Image.open("dim.jpg")
 
 
-
+# Convert image to RGB format
 rgb_im = im.convert("RGB")
 rgb_im.show()
 
-img = rgb2gray(im, avg_lum_preserve)
+# Task 2 b)
+avg_fun1 = avg
+avg_fun2 = avg_lum_preserve
+img = rgb2gray(im, avg_fun2)
 img.show()
 
-# img_inv = intensity_transformation(im)
-#img_inv.show()
+# Task 3 a)
+img_inv = intensity_transformation(im)
+img_inv.show()
 
-# im_gamma = gamma_transformation(img, 2.2, 8)
+#Tasi 3 b)
+im_gamma = gamma_transformation(img, 2.2, 8)
 
+
+
+# Task 4
 kernel3 = array([1, 1, 1,
                 1, 1, 1,
                 1, 1, 1]) / 9
@@ -164,21 +175,19 @@ kernel5 = array([1, 4, 6, 4,
                  4, 16, 24, 16, 4,
                  1, 4, 6, 4]) / 256
 
+# Task 4 a)
+smooth_img = spatial_convolution(img, kernel3)
+smooth_img.show()
 
-# smooth_img = spatial_convolution(img, kernel3)
-# smooth_img.show()
-#
-# smooth_img2 = spatial_convolution(img, kernel5)
-# smooth_img2.show()
+smooth_img2 = spatial_convolution(img, kernel5)
+smooth_img2.show()
 
+# Task 4 b)
+smooth_rbg_image = spatial_convolution_rgb(rgb_im, kernel3)
+smooth_rbg_image.show()
 
-# smooth_rbg_image = spatial_convolution_rgb(rgb_im, kernel3)
-# smooth_rbg_image.show()
-#
-# smooth_rbg_image2 = spatial_convolution_rgb(rgb_im, kernel5)
-# smooth_rbg_image2.show()
-
-
+smooth_rbg_image2 = spatial_convolution_rgb(rgb_im, kernel5)
+smooth_rbg_image2.show()
 
 grad_x = [-1, 0, 1, -2, 0, 2, -1, 0, 1]
 grad_y = [-1, -2, -1, 0, 0, 0, 1, 2, 1]
@@ -188,7 +197,7 @@ Iy = spatial_convolution(img, grad_y)
 Ix.show()
 Iy.show()
 
-
+# TASK 4  c)
 grad_mag = gradient_mag(Ix, Iy)
 grad_mag.show()
 
