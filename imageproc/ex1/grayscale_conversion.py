@@ -9,6 +9,7 @@ from numpy import array
 
 
 # TASK 2 a)
+# Takes the average of all elements ina tupple
 def avg(tupp):
     sum = 0
     for el in tupp:
@@ -16,6 +17,7 @@ def avg(tupp):
     return floor(el / 3)
 
 # TASK 2 a)
+# Takes the weighted average of elements in a 3-tupple
 def avg_lum_preserve(tupp):
     sum = 0
     rw = 0.2126
@@ -24,40 +26,40 @@ def avg_lum_preserve(tupp):
     return floor(tupp[0]*rw + tupp[1]*gw + tupp[2]*bw)
 
 # TASK 2 a)
+# Takes in an image in RGB format, used avg_fun to transform the RBG values into gray values, return new grayscale image
 def rgb2gray(im, avg_fun):
     pixels = list(im.getdata())
-    grey_data = []
+    gray_data = []
     for pix in pixels:
-        grey_data.append(avg_fun(pix))
-    grey_im = Image.new("I", im.size)
-    grey_im.putdata(grey_data)
-    return grey_im
+        gray_data.append(avg_fun(pix))
+    gray_im = Image.new("I", im.size)
+    gray_im.putdata(gray_data)
+    return gray_im
 
 # TASK 3 a)
-def intensity_transformation(grey_im):
-    pixels = list(grey_im.getdata())
+# Creates the inverse of an grayscale image based on how many bits are used to represent the intensity values
+def intensity_transformation(gray_im, bits):
+    pixels = list(gray_im.getdata())
     transformed_data = []
-    pk = 0
-    for val in pixels:
-        if val[0] > pk:
-            pk = val[0]
+    pk = 2**bits -1
     for val in pixels:
         transformed_data.append(pk-val[0])
-    trans_im = Image.new("I", grey_im.size)
+    trans_im = Image.new("I", gray_im.size)
     trans_im.putdata(transformed_data)
     return trans_im
 
 # Task 3 b)
-def gamma_transformation(grey_im, gamma, bits):
+# Creates an image from taking the gamme transform of a grayscale image
+def gamma_transformation(gray_im, gamma, bits):
     L = 2**bits -1
-    im = grey_im.convert("F")
+    im = gray_im.convert("F")
     new_data = []
     pixels = list(im.getdata())
     for val in pixels:
         val = val / L
         val = (val**gamma)*L
         new_data.append(val)
-    im = Image.new("F", im.size)
+    im = Image.new("I", im.size)
     im.putdata(new_data)
     return im
 
@@ -68,7 +70,7 @@ def spatial_convolution(gray_im, kernel):
     size_x = gray_im.size[0]
     size_y = gray_im.size[1]
     kernel_border_length = int(sqrt(len(kernel)))
-    side_padding = floor(kernel_border_length/2)
+    side_padding = int(floor(kernel_border_length/2))
     new_data = []
     index = lambda x, y: y*size_x + x
     kernel_index = lambda i, j: i*kernel_border_length + j
@@ -101,7 +103,7 @@ def spatial_convolution_rgb(rgb_im, kernel):
         data_green.append(values[1])
         data_blue.append(values[2])
 
-    ## LOL PLEASE DONT JUDGE ME
+    ## LOL PLEASE DONT JUDGE ME, since I already have function to take spatial convulution of an image, I want to reuse it
     red_im = Image.new("I", rgb_im.size)
     red_im.putdata(data_red)
     green_im = Image.new("I", rgb_im.size)
@@ -149,49 +151,59 @@ im = Image.open("Lenna.png")
 rgb_im = im.convert("RGB")
 rgb_im.show()
 
-# Task 2 b)
+
+# Task 2 b) take average of image using 2 different avg functions
 avg_fun1 = avg
 avg_fun2 = avg_lum_preserve
+
+img_bad_avg = rgb2gray(im, avg_fun1)
 img = rgb2gray(im, avg_fun2)
+
+img_bad_avg.show()
 img.show()
 
-# Task 3 a)
-img_inv = intensity_transformation(im)
+
+# Task 3 a) Perform intensity transformation - inverse intensity transformation
+img_inv = intensity_transformation(im, 8)
 img_inv.show()
 
-#Tasi 3 b)
-im_gamma = gamma_transformation(img, 2.2, 8)
+#Tasi 3 b) perform gamme transformation
+gamma = 2.2
+im_gamma = gamma_transformation(img, gamma, 8)
+im_gamma.show()
 
 
-
-# Task 4
+# Task 4 Spatial convulution
 kernel3 = array([1, 1, 1,
                 1, 1, 1,
-                1, 1, 1]) / 9
+                1, 1, 1]) / 9.0
 
 kernel5 = array([1, 4, 6, 4,
                  4, 16, 24, 16, 4,
                  6, 24, 36, 24, 6,
                  4, 16, 24, 16, 4,
-                 1, 4, 6, 4]) / 256
+                 1, 4, 6, 4]) / 256.0
 
-# Task 4 a)
+# Task 4 a) spatial confulution grayscale image with
 smooth_img = spatial_convolution(img, kernel3)
 smooth_img.show()
 
 smooth_img2 = spatial_convolution(img, kernel5)
 smooth_img2.show()
 
-# Task 4 b)
+# Task 4 b) spatial convolution rgb image
 smooth_rbg_image = spatial_convolution_rgb(rgb_im, kernel3)
 smooth_rbg_image.show()
 
 smooth_rbg_image2 = spatial_convolution_rgb(rgb_im, kernel5)
 smooth_rbg_image2.show()
 
+
+
+# Task 4c edge detection / gradients
 grad_x = [-1, 0, 1, -2, 0, 2, -1, 0, 1]
 grad_y = [-1, -2, -1, 0, 0, 0, 1, 2, 1]
-# fucntion i made only work with nxn kernels, so no optimization with separating kernels here
+# fucntion i made only work with nxn kernels, so no optimization with separating kernels in this yard
 Ix = spatial_convolution(img, grad_x)
 Iy = spatial_convolution(img, grad_y)
 Ix.show()
@@ -200,7 +212,6 @@ Iy.show()
 # TASK 4  c)
 grad_mag = gradient_mag(Ix, Iy)
 grad_mag.show()
-
 
 
 
