@@ -2,7 +2,8 @@ from PIL import Image
 from PIL import ImageFilter
 from math import floor
 from math import sqrt
-from numpy import array
+from numpy import *
+import math
 
 
 
@@ -13,8 +14,14 @@ from numpy import array
 def avg(tupp):
     sum = 0
     for el in tupp:
+        # print(el)
         sum += el
-    return floor(el / 3)
+        print(floor(sum / float(3)))
+    return floor(sum / float(3))
+
+
+
+
 
 # TASK 2 a)
 # Takes the weighted average of elements in a 3-tupple
@@ -87,6 +94,10 @@ def spatial_convolution(gray_im, kernel):
                     #print(kernel_index(i, j))
                     #print(index(x + j - side_padding, y + i - side_padding))
                     conv_sum += data[index(x + j - side_padding, y + i - side_padding)] * kernel[kernel_index(i, j)]
+            # Want negative values!
+            # conv_sum = -conv_sum if conv_sum < 0 else conv_sum
+            # Rescale values that are to big
+            conv_sum = 255 if conv_sum > 255 else conv_sum
             new_data.append(conv_sum)
     new_im = Image.new("I", gray_im.size)
     new_im.putdata(new_data)
@@ -111,9 +122,9 @@ def spatial_convolution_rgb(rgb_im, kernel):
     blue_im = Image.new("I", rgb_im.size)
     blue_im.putdata(data_blue)
 
-    red_smooth = spatial_convolution(red_im, kernel3)
-    green_smooth = spatial_convolution(green_im, kernel3)
-    blue_smooth = spatial_convolution(blue_im, kernel3)
+    red_smooth = spatial_convolution(red_im, kernel)
+    green_smooth = spatial_convolution(green_im, kernel)
+    blue_smooth = spatial_convolution(blue_im, kernel)
 
     red_smooth_data = red_smooth.getdata()
     green_smooth_data = green_smooth.getdata()
@@ -133,46 +144,58 @@ def gradient_mag(Ix, Iy):
     y_data = Iy.getdata()
     magnitude = []
     for i in range(0, len(x_data)):
-        mag = sqrt(x_data[i]**2 + y_data[i]**2)
+        mag = math.ceil(sqrt(x_data[i]**2 + y_data[i]**2))
+        mag = 255 if mag > 255 else mag
         magnitude.append(mag)
-    new_image = Image.new("F", Ix.size)
+    new_image = Image.new("I", Ix.size)
     new_image.putdata(magnitude)
     return new_image
 
 
 # Get image
-im = Image.open("Lenna.png")
-#im = Image.open("rainbow.jpg")
-#im = Image.open("vibrant.jpg")
+# im = Image.open("Lenna.png")
+# im = Image.open("rainbow.jpg")
+# im = Image.open("vibrant.jpg")
 #im = Image.open("dim.jpg")
+# im = Image.open("terraux.tiff")
+# im = Image.open("fishingboat.tiff")
+im = Image.open("test.png")
 
+
+
+img = im
 
 # Convert image to RGB format
 rgb_im = im.convert("RGB")
 rgb_im.show()
 
+print(list(rgb_im.getdata())[900:950])
 
 # Task 2 b) take average of image using 2 different avg functions
 avg_fun1 = avg
 avg_fun2 = avg_lum_preserve
-
+#
 img_bad_avg = rgb2gray(im, avg_fun1)
 img = rgb2gray(im, avg_fun2)
 
 img_bad_avg.show()
 img.show()
 
-
-# Task 3 a) Perform intensity transformation - inverse intensity transformation
-img_inv = intensity_transformation(im, 8)
-img_inv.show()
-
-#Tasi 3 b) perform gamme transformation
-gamma = 2.2
-im_gamma = gamma_transformation(img, gamma, 8)
-im_gamma.show()
+print(list(img.getdata())[900:950])
 
 
+
+
+# # Task 3 a) Perform intensity transformation - inverse intensity transformation
+# img_inv = intensity_transformation(im, 8)
+# img_inv.show()
+#
+# #Tasi 3 b) perform gamme transformation
+# gamma = 2.2
+# im_gamma = gamma_transformation(img, gamma, 8)
+# im_gamma.show()
+#
+#
 # Task 4 Spatial convulution
 kernel3 = array([1, 1, 1,
                 1, 1, 1,
@@ -183,35 +206,40 @@ kernel5 = array([1, 4, 6, 4,
                  6, 24, 36, 24, 6,
                  4, 16, 24, 16, 4,
                  1, 4, 6, 4]) / 256.0
-
-# Task 4 a) spatial confulution grayscale image with
-smooth_img = spatial_convolution(img, kernel3)
-smooth_img.show()
-
-smooth_img2 = spatial_convolution(img, kernel5)
-smooth_img2.show()
-
+#
+# # Task 4 a) spatial confulution grayscale image with
+# smooth_img = spatial_convolution(img, kernel3)
+# smooth_img.show()
+#
+# smooth_img2 = spatial_convolution(img, kernel5)
+# smooth_img2.show()
+#
 # Task 4 b) spatial convolution rgb image
-smooth_rbg_image = spatial_convolution_rgb(rgb_im, kernel3)
-smooth_rbg_image.show()
-
-smooth_rbg_image2 = spatial_convolution_rgb(rgb_im, kernel5)
-smooth_rbg_image2.show()
+# smooth_rbg_image = spatial_convolution_rgb(rgb_im, kernel3)
+# smooth_rbg_image.show()
+#
+# smooth_rbg_image2 = spatial_convolution_rgb(rgb_im, kernel5)
+# smooth_rbg_image2.show()
 
 
 
 # Task 4c edge detection / gradients
-grad_x = [-1, 0, 1, -2, 0, 2, -1, 0, 1]
-grad_y = [-1, -2, -1, 0, 0, 0, 1, 2, 1]
-# fucntion i made only work with nxn kernels, so no optimization with separating kernels in this yard
-Ix = spatial_convolution(img, grad_x)
-Iy = spatial_convolution(img, grad_y)
-Ix.show()
-Iy.show()
+# grad_x = array([-1, 0, 1, -2, 0, 2, -1, 0, 1])
+# grad_y = array([-1, -2, -1, 0, 0, 0, 1, 2, 1])
+# # Function i made only work with nxn kernels, so no optimization with separating kernels in this yard
+# Ix = spatial_convolution(img, grad_x)
+# Iy = spatial_convolution(img, grad_y)
+# Ix.show()
+# Iy.show()
+# #
+# # # TASK 4  c)
+# grad_mag = gradient_mag(Ix, Iy)
+# grad_mag.show()
 
-# TASK 4  c)
-grad_mag = gradient_mag(Ix, Iy)
-grad_mag.show()
+
+sharp_filt = [0, -2, 0, -2, 8, -2, 0, -2, 0]
+# sharp = spatial_convolution_rgb(rgb_im, sharp_filt)
+# sharp.show()
 
 
 
