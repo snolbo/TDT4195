@@ -145,26 +145,11 @@ def task4_selectivefiltering(path, kernel, im_name):
     im  = misc.imread(path, mode="L")
     [spatial_filtered, imfreq, imfreq_filtered, kernel_freq] = fft(im, kernel)
 
-
-    # plotFFTLog10(imfreq)
-    # b = abs(logtransform(imfreq.copy()))
-    # b = logtransform(b)
-    # plot(b)
-    # misc.imsave("test.tiff.tiff", b)
-
-    # print(im.shape)
-    # filt = misc.imread("filt-b.tif", mode="L")
-    # filt = filt /255
-    # filt[filt > 0.3] = 1
-    # plot(filt)
-    # misc.imsave("filt-b.tiff", filt)
-
-
     filt = misc.imread(im_name + ".tiff", mode="L")
     # filt = np.pad(filt, mode="constant", pad_width = 2 )
     res = np.multiply(imfreq, filt)
-    # misc.imsave(im_name + "-imfreq.tiff", logtransform(imfreq))
-    # misc.imsave(im_name +S "-spectrumresult.tiff", logtransform(res))
+    misc.imsave(im_name + "-imfreq.tiff", logtransform(imfreq))
+    misc.imsave(im_name + "-spectrumresult.tiff", logtransform(res))
     plotFFTLog10(imfreq)
     plotFFTLog10(res)
 
@@ -172,20 +157,20 @@ def task4_selectivefiltering(path, kernel, im_name):
     res = abs(np.fft.ifft2(res))
 
     plot(res)
-    # misc.imsave(im_name + "-result.tiff", res)
+    misc.imsave(im_name + "-result.tiff", res)
 
 
 
 
 filtertype = "lowpass"
-path = "./images/noise-a.tiff"
+path = "./images/noise-c.tiff"
 
 im = misc.imread(path, mode="L")
 big_gauss = get_big_gaussian(im)
 
 # task2_freqfiltering(path, gauss_kernel , filtertype)
 # task3_unsharpmasking(path, gauss_kernel, 1)
-task4_selectivefiltering(path, gauss_kernel, "filt-a")
+task4_selectivefiltering(path, gauss_kernel, "filt-c")
 
 
 plt.show()
