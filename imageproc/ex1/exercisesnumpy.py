@@ -161,7 +161,7 @@ def task4_gradients(path):
 
 
 
-task2_grayscale_conversion("test.png")
+task2_grayscale_conversion("test.tiff.png")
 task3_inverse("aerial.tiff")
 task3_gamma("aerial.tiff")
 task4_grayscale_convolution("fishingboat.tiff")
