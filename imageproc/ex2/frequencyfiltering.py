@@ -164,7 +164,7 @@ def task4_selectivefiltering(path, kernel, im_name):
     # filt = np.pad(filt, mode="constant", pad_width = 2 )
     res = np.multiply(imfreq, filt)
     # misc.imsave(im_name + "-imfreq.tiff", logtransform(imfreq))
-    # misc.imsave(im_name + "-spectrumresult.tiff", logtransform(res))
+    # misc.imsave(im_name +S "-spectrumresult.tiff", logtransform(res))
     plotFFTLog10(imfreq)
     plotFFTLog10(res)
 
@@ -178,14 +178,14 @@ def task4_selectivefiltering(path, kernel, im_name):
 
 
 filtertype = "lowpass"
-path = "./images/noise-c.tiff"
+path = "./images/noise-a.tiff"
 
 im = misc.imread(path, mode="L")
 big_gauss = get_big_gaussian(im)
 
 # task2_freqfiltering(path, gauss_kernel , filtertype)
 # task3_unsharpmasking(path, gauss_kernel, 1)
-task4_selectivefiltering(path, gauss_kernel, "filt-c")
+task4_selectivefiltering(path, gauss_kernel, "filt-a")
 
 
 plt.show()
