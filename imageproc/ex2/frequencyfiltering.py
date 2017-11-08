@@ -3,14 +3,6 @@ from scipy import misc
 from matplotlib import pyplot as plt
 from scipy import ndimage
 import math
-import imageio
-from skimage import feature
-from skimage import exposure
-from heapq import nlargest
-from skimage import restoration
-
-from skimage.transform import (hough_line, hough_line_peaks,
-                               probabilistic_hough_line)
 
 def plot(img):
     plt.figure()
@@ -34,7 +26,6 @@ def logtransform(im):
 
 
 def fft(spatial, kernel):
-
     # Expand kernel and find fft transform
     r, c = spatial.shape
     kr, kc = kernel.shape
@@ -95,6 +86,7 @@ def get_big_gaussian(im):
     # plot(gauss_big)
     return gauss_big
 ##################################################################################
+
 
 def task2_freqfiltering(path, kernel, filtertype):
     im = misc.imread(path, mode="L")
@@ -162,15 +154,16 @@ def task4_selectivefiltering(path, kernel, im_name):
 
 
 
+
 filtertype = "highpass"
 path = "./images/opera.tiff"
 
 im = misc.imread(path, mode="L")
-big_gauss = get_big_gaussian(im)
+#big_gauss = get_big_gaussian(im)
 
 task2_freqfiltering(path, highpass_kernel , filtertype)
 #task3_unsharpmasking(path, gauss_kernel, 1)
 #task4_selectivefiltering(path, gauss_kernel, "filt-c")
 
 
-plt.show()
+plt.show() # To prevent automatic closing of images
