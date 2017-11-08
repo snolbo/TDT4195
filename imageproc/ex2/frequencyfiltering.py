@@ -105,11 +105,11 @@ def task2_freqfiltering(path, kernel, filtertype):
     plotFFTLog10(imfreq_filtered)
     plotFFTLog10(kernel_freq)
 
-    misc.imsave(filtertype + "_spatialbefore.tiff", spatial_filtered)
-    misc.imsave(filtertype + "_spatialafter.tiff", spatial_filtered)
-    misc.imsave(filtertype + "_spectrumbefore.tiff", logtransform(imfreq))
-    misc.imsave(filtertype + "_spectrumafter.tiff", logtransform(imfreq_filtered))
-    misc.imsave(filtertype + "_spectrumkernel.tiff", logtransform(kernel_freq))
+    misc.imsave(filtertype + "_spatialbefore.png", spatial_filtered)
+    misc.imsave(filtertype + "_spatialafter.png", spatial_filtered)
+    misc.imsave(filtertype + "_spectrumbefore.png", logtransform(imfreq))
+    misc.imsave(filtertype + "_spectrumafter.png", logtransform(imfreq_filtered))
+    misc.imsave(filtertype + "_spectrumkernel.png", logtransform(kernel_freq))
 
 def task3_unsharpmasking(path, kernel, k):
     im = misc.imread(path, mode="L")
@@ -135,11 +135,11 @@ def task3_unsharpmasking(path, kernel, k):
     plotFFTLog10(kernel_freq)
 
     # Saving images
-    misc.imsave("unsharp_im.tiff", im)
-    misc.imsave("unsharp_imsharp.tiff", spatial_filtered)
-    misc.imsave("unsharp_imfreqbefore.tiff", logtransform(imfreq))
-    misc.imsave("unsharp_imfreqafter.tiff", logtransform(imfreq_filtered))
-    misc.imsave("unsharp_unsharpkernel.tiff", logtransform(kernel_freq))
+    misc.imsave("unsharp_im.png", im)
+    misc.imsave("unsharp_imsharp.png", spatial_filtered)
+    misc.imsave("unsharp_imfreqbefore.png", logtransform(imfreq))
+    misc.imsave("unsharp_imfreqafter.png", logtransform(imfreq_filtered))
+    misc.imsave("unsharp_unsharpkernel.png", logtransform(kernel_freq))
 
 def task4_selectivefiltering(path, kernel, im_name):
     im  = misc.imread(path, mode="L")
@@ -148,8 +148,8 @@ def task4_selectivefiltering(path, kernel, im_name):
     filt = misc.imread(im_name + ".tiff", mode="L")
     # filt = np.pad(filt, mode="constant", pad_width = 2 )
     res = np.multiply(imfreq, filt)
-    misc.imsave(im_name + "-imfreq.tiff", logtransform(imfreq))
-    misc.imsave(im_name + "-spectrumresult.tiff", logtransform(res))
+    misc.imsave(im_name + "-imfreq.png", logtransform(imfreq))
+    misc.imsave(im_name + "-spectrumresult.png", logtransform(res))
     plotFFTLog10(imfreq)
     plotFFTLog10(res)
 
@@ -157,20 +157,20 @@ def task4_selectivefiltering(path, kernel, im_name):
     res = abs(np.fft.ifft2(res))
 
     plot(res)
-    misc.imsave(im_name + "-result.tiff", res)
+    misc.imsave(im_name + "-result.png", res)
 
 
 
 
-filtertype = "lowpass"
-path = "./images/noise-c.tiff"
+filtertype = "highpass"
+path = "./images/opera.tiff"
 
 im = misc.imread(path, mode="L")
 big_gauss = get_big_gaussian(im)
 
-# task2_freqfiltering(path, gauss_kernel , filtertype)
-# task3_unsharpmasking(path, gauss_kernel, 1)
-task4_selectivefiltering(path, gauss_kernel, "filt-c")
+task2_freqfiltering(path, highpass_kernel , filtertype)
+#task3_unsharpmasking(path, gauss_kernel, 1)
+#task4_selectivefiltering(path, gauss_kernel, "filt-c")
 
 
 plt.show()
