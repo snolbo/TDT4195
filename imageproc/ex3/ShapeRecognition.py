@@ -29,7 +29,6 @@ def removeColor(im, color, var):
 
 
 
-
 def shapeRecognition(im):
     # Approximate checkerboard color
     board_green = (48, 159, 91)
@@ -53,7 +52,10 @@ def shapeRecognition(im):
     i = 3
     y,x = np.ogrid[-i: i+1, -i: i+1]
     mask = x**2+y**2 <= i**2
+    # mask = np.ones((50,1))
+    # im_morph = ndimage.binary_erosion(input=im_bin, structure=mask)
     im_morph = ndimage.binary_opening(input=im_bin, structure=mask)
+
 
     # Label using connected components algorithm?
     im_label, num_features = ndimage.label(im_morph)
@@ -70,12 +72,12 @@ def shapeRecognition(im):
     misc.imsave(name + "morphnoise.tiff", im_morph)
     misc.imsave(name + "labeled.tiff", im_label)
 
-    # plot(im_label)
-    # plot(im_morph)
-    # plot(im_bin)
-    # plot(im_gray)
-    # plot(removed_board)
-    # plot(im)
+    plot(im_label)
+    plot(im_morph)
+    plot(im_bin)
+    plot(im_gray)
+    plot(removed_board)
+    plot(im)
 
     return region_properties
 
@@ -90,21 +92,27 @@ def visualize1D(array, names):
 def getHuMoments(im_region_properties):
     im_hu_moments_log10 = []
     num_regions = 5
+    plt.figure()
     for image in range(0, len(im_region_properties)):
         hu_moments_log10 = []
         for i in range(0, num_regions):
             data = im_region_properties[image][i].moments_hu
+            data = data *10000000000000000
+            print(data)
             negatives = data < 0
-            data = abs(data)
+            # data = abs(data)
             data = np.log10(data)
             data[negatives] *= -1
             hu_moments_log10.append(data)
         im_hu_moments_log10.append(hu_moments_log10)
+        # plt.figure()
+        plt.plot( hu_moments_log10[:][:3])
     return im_hu_moments_log10
 
 names = ["task5-01", "task5-02", "task5-03"]
+# names = ["task5-01"]
+
 # Becomes 3D array [im number][shape in im][hu moments]
-# im_hu_moments = []
 im_region_properties = []
 for name in names:
     path = "./images/"+name+".tiff"
@@ -141,14 +149,14 @@ for region_properties in im_region_properties:
     im_equivalent_diameters.append(equivalent_diameters)
 
 
-humom = getHuMoments(im_region_properties)
-print(humom)
-
+# im_hu_moments = getHuMoments(im_region_properties)
+# print(im_hu_moments)
+#
 # fig, ax = plt.subplots()
-# ind = np.arange(len()) + 1
+# ind = np.arange(len(im_hu_moments)) + 1
 # ax.set_ylim(-25, 25)
 # for index in range(0, len(im_hu_moments)):
-#     im_moment = im_hu_moments[image]
+#     im_moment = im_hu_moments[index]
 
 # Visualize centroids
 # for i in range(0,len(names)):
@@ -164,12 +172,16 @@ print(humom)
 #     plot(im2)
 #     misc.imsave("centroid_visualize_" + str(names[i]) + ".tiff", im2)
 
+#
+# visualize1D(im_perimeters, names)
+# visualize1D(im_areas, names)
+# visualize1D(im_eccentricities, names)
+# visualize1D(im_equivalent_diameters, names)
 
-visualize1D(im_perimeters, names)
-visualize1D(im_areas, names)
-visualize1D(im_eccentricities, names)
-visualize1D(im_equivalent_diameters, names)
+# visualize1D(np.sqrt(np.array(im_areas))/np.array(im_perimeters), names)
+visualize1D(np.array(im_areas)/np.array(im_perimeters), names)
 
+# print(im_areas)
 
 
 

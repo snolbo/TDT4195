@@ -96,12 +96,12 @@ def task2_freqfiltering(path, kernel, filtertype):
     plotFFTLog10(imfreq)
     plotFFTLog10(imfreq_filtered)
     plotFFTLog10(kernel_freq)
-
-    misc.imsave(filtertype + "_spatialbefore.png", spatial_filtered)
-    misc.imsave(filtertype + "_spatialafter.png", spatial_filtered)
-    misc.imsave(filtertype + "_spectrumbefore.png", logtransform(imfreq))
-    misc.imsave(filtertype + "_spectrumafter.png", logtransform(imfreq_filtered))
-    misc.imsave(filtertype + "_spectrumkernel.png", logtransform(kernel_freq))
+    #
+    # misc.imsave(filtertype + "_spatialbefore.png", spatial_filtered)
+    # misc.imsave(filtertype + "_spatialafter.png", spatial_filtered)
+    # misc.imsave(filtertype + "_spectrumbefore.png", logtransform(imfreq))
+    # misc.imsave(filtertype + "_spectrumafter.png", logtransform(imfreq_filtered))
+    # misc.imsave(filtertype + "_spectrumkernel.png", logtransform(kernel_freq))
 
 def task3_unsharpmasking(path, kernel, k):
     im = misc.imread(path, mode="L")
@@ -156,7 +156,7 @@ def task4_selectivefiltering(path, kernel, im_name):
 
 
 filtertype = "highpass"
-path = "./images/opera.tiff"
+path = "./images/ascend.jpg"
 
 im = misc.imread(path, mode="L")
 #big_gauss = get_big_gaussian(im)
