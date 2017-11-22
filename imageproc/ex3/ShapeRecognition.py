@@ -18,13 +18,6 @@ def removeColor(im, color, var):
     g = im[:, :, 1]
     b = im[:, :, 2]
 
-    # hist = np.zeros((256,256,256))
-    # rows, cols, dims = im.shape
-    # for row in range(0,rows):
-    #     for col in range(0, cols):
-    #         a,b,c = im[row][col]
-    #         hist[a,b,c] +=1
-
     r_col, g_col, b_col = color
     # Create a mask for removing color values
     mask = ((r_col - var < r) & (r < r_col + var)) & ((g_col - var < g) & (g < g_col + var)) & ((b_col - var < b) & (b < b_col + var))
@@ -113,7 +106,7 @@ def getHuMoments(im_region_properties):
     return im_hu_moments_log10
 
 names = ["task5-01", "task5-02", "task5-03"]
-# names = ["task5-01"]
+# names = ["test"]
 
 # Return array of regionprops for the given images
 im_region_properties = []
@@ -127,29 +120,29 @@ for name in names:
 im_centroids =  []
 im_perimeters =  []
 im_areas =  []
-im_eccentricities  =  []
-im_bounding_box = []
-im_equivalent_diameters = []
+# im_eccentricities  =  []
+# im_bounding_box = []
+# im_equivalent_diameters = []
 for region_properties in im_region_properties:
     centroids = []
     perimeters = []
     areas = []
-    eccentricities = []
-    bounding_boxes = []
+    # eccentricities = []
+    # bounding_boxes = []
     equivalent_diameters = []
     for shape in region_properties:
         centroids.append(shape.centroid)
         perimeters.append(shape.perimeter)
         areas.append(shape.area)
-        eccentricities.append(shape.eccentricity)
-        bounding_boxes.append(shape.bbox)
-        equivalent_diameters.append(shape.equivalent_diameter)
+        # eccentricities.append(shape.eccentricity)
+        # bounding_boxes.append(shape.bbox)
+        # equivalent_diameters.append(shape.equivalent_diameter)
     im_centroids.append(centroids)
     im_perimeters.append(perimeters)
     im_areas.append(areas)
-    im_eccentricities.append(eccentricities)
-    im_bounding_box.append(bounding_boxes)
-    im_equivalent_diameters.append(equivalent_diameters)
+    # im_eccentricities.append(eccentricities)
+    # im_bounding_box.append(bounding_boxes)
+    # im_equivalent_diameters.append(equivalent_diameters)
 
 
 
@@ -178,9 +171,6 @@ print("The colors and shapes are connected as follows:")
 for i in range(len(shapetypes)):
     print(str(shapetypes[i] + " - " + str(shapecolors_text[i])))
 
-# Used KMeans and used cluster centers for using values to predict
-# kmeans = cluster.KMeans(n_clusters=5, random_state=0).fit(np.reshape(moments, (-1 , 1)))
-# print(kmeans.cluster_centers_)
 
 # Color the shapes in the different images with the same color tag in their centroid, plot and store result
 c_size = 2
